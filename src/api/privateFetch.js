@@ -1,8 +1,13 @@
-import {apiHostWithVersion} from '../bin/config';
+import {apiHostWithVersion} from '../bin/index';
 import {getItem} from '../utils/storage.util';
 import {getAccessTokenAndRetry} from './publicFetch';
 
-export async function securedFetch(path, method = 'GET', body, options) {
+export default async function securedFetch(
+  path,
+  method = 'GET',
+  body,
+  options,
+) {
   const accessToken = await getItem('accessToken');
   if (!accessToken) throw new Error('No Session Active');
   const headers = {
@@ -16,7 +21,7 @@ export async function securedFetch(path, method = 'GET', body, options) {
   };
   if (body) fetchOptions.body = body;
 
-  if (options.headers) {
+  if (options?.headers) {
     options.headers.forEach(([x, y]) => {
       headers[x] = y;
       if (y === null) delete headers[x];
@@ -29,12 +34,7 @@ export async function securedFetch(path, method = 'GET', body, options) {
     case 200:
       return data;
     case 401:
-      return await getAccessTokenAndRetry(
-        path,
-        (method = 'GET'),
-        body,
-        options,
-      );
+      return await getAccessTokenAndRetry(path, method, body, options);
     default:
       throw data;
   }

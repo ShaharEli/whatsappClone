@@ -1,5 +1,6 @@
-import {apiHostWithVersion} from '../bin/config';
-import {getItem} from '../utils/storage.util';
+import {apiHostWithVersion} from '../bin/index';
+import {getAccessToken} from './auth';
+const securedFetch = require('./privateFetch');
 
 export async function publicFetch(path, method = 'GET', body, options) {
   const headers = {
@@ -12,7 +13,7 @@ export async function publicFetch(path, method = 'GET', body, options) {
   };
   if (body) fetchOptions.body = body;
 
-  if (options.headers) {
+  if (options?.headers) {
     options.headers.forEach(([x, y]) => {
       headers[x] = y;
       if (y === null) delete headers[x];
@@ -28,4 +29,7 @@ export async function publicFetch(path, method = 'GET', body, options) {
   throw data;
 }
 
-export const getAccessTokenAndRetry = async () => {};
+export const getAccessTokenAndRetry = async (path, method, body, options) => {
+  await getAccessToken();
+  await securedFetch(path, method, body, options);
+};
