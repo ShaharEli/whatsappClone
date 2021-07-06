@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-
+//TODO add splash screen or diff loading
 export default function Loading() {
   return (
     <View>

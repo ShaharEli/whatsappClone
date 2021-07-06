@@ -32,7 +32,7 @@ export default function StyleProvider({children}) {
   return (
     <>
       <StatusBar
-        backgroundColor={currentTheme === 'light' ? '#CCCCCC' : '#20232A'}
+        backgroundColor={currentTheme === 'light' ? '#085D54' : '#1D222B'}
       />
       <ThemeContext.Provider value={{currentTheme, setCurrentTheme}}>
         {children}

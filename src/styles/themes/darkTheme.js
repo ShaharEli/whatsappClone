@@ -1,4 +1,7 @@
 export default {
+  STATUSE_BAR: '#1D222B',
+  HEADER: '#25303C',
+  TEXT_INPUT_LABEL: '#539EF2',
   bg: '#002B36',
   sideBar: '#242526',
   font: 'white',
