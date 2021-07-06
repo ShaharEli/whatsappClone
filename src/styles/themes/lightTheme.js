@@ -1,7 +1,9 @@
 export default {
   STATUSE_BAR: '#085D54',
   HEADER: '#138C7E',
-  bg: '#f7f7f8',
+  GREEN_PRIMARY: '#23D366',
+  BG: '#f7f7f8',
+  INPUT_BASE: 'rgba(0, 0, 0, .38)',
   sideBar: '#FFFFFF',
   font: 'black',
   textInput: 'white',

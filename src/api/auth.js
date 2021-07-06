@@ -1,3 +1,4 @@
+import Snackbar from 'react-native-snackbar';
 import {logger} from '../utils';
 import {getItem, setItem} from '../utils/storage.util';
 import {publicFetch} from './publicFetch';
@@ -13,6 +14,19 @@ export const getAccessToken = async () => {
   return await publicFetch('/auth/get-token', 'POST', {refreshToken});
 };
 
+export const loginByPass = async (phone, password) => {
+  try {
+    return await publicFetch('/auth/login', 'POST', {phone, password});
+  } catch ({error}) {
+    Snackbar.show({
+      text: error,
+      duration: Snackbar.LENGTH_SHORT,
+    });
+    logger.error(error);
+    return false;
+  }
+};
+
 export const loginWithToken = async () => {
   try {
     const refreshToken = await getRefreshOrThrow();
@@ -24,7 +38,7 @@ export const loginWithToken = async () => {
     await setItem('accessToken', accessToken);
     return user;
   } catch ({message}) {
-    logger.warn(message);
+    // logger.warn(message); //TODO uncomment
     return false;
   }
 };

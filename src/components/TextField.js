@@ -9,16 +9,20 @@ export default function TextField({
   keyboardType = null,
   onChangeText,
   error = null,
+  ref,
 }) {
   const {colors} = useTheme();
   return (
     <OutlinedTextField
-      label={'label'}
+      label={label}
       keyboardType={keyboardType}
       error={error}
       onChangeText={onChangeText}
       tintColor={colors.TEXT_INPUT_LABEL}
+      baseColor={colors.INPUT_BASE}
+      textColor={colors.font}
       errorColor={colors.RED}
+      ref={ref}
     />
   );
 }

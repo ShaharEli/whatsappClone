@@ -11,7 +11,7 @@ export async function publicFetch(path, method = 'GET', body, options) {
     mode: 'cors',
     cache: 'no-cache',
   };
-  if (body) fetchOptions.body = body;
+  if (body) fetchOptions.body = JSON.stringify(body);
 
   if (options?.headers) {
     options.headers.forEach(([x, y]) => {
@@ -20,6 +20,8 @@ export async function publicFetch(path, method = 'GET', body, options) {
     });
   }
   fetchOptions.headers = new Headers(headers);
+
+  console.log(fetchOptions);
 
   const response = await fetch(apiHostWithVersion + path, fetchOptions);
   const data = await response.json();

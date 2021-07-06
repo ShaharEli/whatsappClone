@@ -1,10 +1,17 @@
 import {StyleSheet} from 'react-native';
+import {MAX_HEIGHT, MAX_WIDTH} from '../utils';
 import COLOR from './themes/generalColors';
 export default StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
   },
+  width: (w, add = 0) => ({width: MAX_WIDTH * w + add}),
+  maxWidth: maxWidth => ({maxWidth}),
+  height: (h, add = 0) => ({height: MAX_HEIGHT * h + add}),
+  maxHeight: maxHeight => ({maxHeight}),
+  bg: ({BG}) => ({backgroundColor: BG}),
+  font: ({font}) => ({color: font}),
   flexGrow: {
     flexGrow: 1,
   },
@@ -99,6 +106,10 @@ export default StyleSheet.create({
   spaceAround: {
     justifyContent: 'space-around',
   },
+  p0: {padding: 5},
+  p1: {padding: 10},
+  p2: {padding: 15},
+  p3: {padding: 20},
   flex1: {
     flex: 1,
   },
@@ -357,4 +368,8 @@ export default StyleSheet.create({
   flex: flex => ({
     flex,
   }),
+  box: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

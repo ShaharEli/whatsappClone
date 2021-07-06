@@ -1,8 +1,10 @@
 export default {
   STATUSE_BAR: '#1D222B',
+  GREEN_PRIMARY: '#00AF9B',
   HEADER: '#25303C',
   TEXT_INPUT_LABEL: '#539EF2',
-  bg: '#002B36',
+  INPUT_BASE: 'grey',
+  BG: '#111C23',
   sideBar: '#242526',
   font: 'white',
   LIGHT_GREY_BG: '#f4f4f7',
