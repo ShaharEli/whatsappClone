@@ -77,6 +77,7 @@ export default function Login({navigation}) {
               label={'password'}
               onChangeText={setPassword}
               error={errors?.password}
+              secureTextEntry
             />
           </WidthContainer>
         </View>

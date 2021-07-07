@@ -9,6 +9,7 @@ export default function TextField({
   keyboardType = null,
   onChangeText,
   error = null,
+  secureTextEntry = false,
   ref,
 }) {
   const {colors} = useTheme();
@@ -22,6 +23,7 @@ export default function TextField({
       baseColor={colors.INPUT_BASE}
       textColor={colors.font}
       errorColor={colors.RED}
+      secureTextEntry={secureTextEntry}
       ref={ref}
     />
   );

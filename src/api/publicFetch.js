@@ -21,8 +21,6 @@ export async function publicFetch(path, method = 'GET', body, options) {
   }
   fetchOptions.headers = new Headers(headers);
 
-  console.log(fetchOptions);
-
   const response = await fetch(apiHostWithVersion + path, fetchOptions);
   const data = await response.json();
   if (response.status === 200) {

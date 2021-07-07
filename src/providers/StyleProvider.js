@@ -6,9 +6,7 @@ import darkTheme from '../styles/themes/darkTheme';
 import lightTheme from '../styles/themes/lightTheme';
 import generalColors from '../styles/themes/generalColors';
 import rootStyles from '../styles/rootStyles';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
-Ionicons.loadFont();
 export const ThemeContext = createContext();
 
 export default function StyleProvider({children}) {

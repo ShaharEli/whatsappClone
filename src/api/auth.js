@@ -15,8 +15,29 @@ export const getAccessToken = async () => {
 };
 
 export const loginByPass = async (phone, password) => {
+  //GET TOKENS!!
   try {
     return await publicFetch('/auth/login', 'POST', {phone, password});
+  } catch ({error}) {
+    Snackbar.show({
+      text: error,
+      duration: Snackbar.LENGTH_SHORT,
+    });
+    logger.error(error);
+    return false;
+  }
+};
+
+export const register = async payload => {
+  try {
+    const {user, accessToken, refreshToken} = await publicFetch(
+      '/auth/register',
+      'POST',
+      payload,
+    );
+    await setItem('accessToken', accessToken);
+    await setItem('refreshToken', refreshToken);
+    return user;
   } catch ({error}) {
     Snackbar.show({
       text: error,

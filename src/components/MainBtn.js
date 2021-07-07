@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {Text, TouchableOpacity} from 'react-native';
 import {useTheme} from '../providers/StyleProvider';
 
 export default function MainBtn({style, onPress, children, textStyle}) {
