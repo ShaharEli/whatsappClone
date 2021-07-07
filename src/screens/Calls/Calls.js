@@ -1,10 +1,10 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
-export default function Settings() {
+export default function Calls() {
   return (
     <View>
-      <Text>Settings</Text>
+      <Text>Calls</Text>
     </View>
   );
 }

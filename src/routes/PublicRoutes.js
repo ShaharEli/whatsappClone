@@ -34,16 +34,19 @@ export default function PublicRoutes() {
       <Stack.Screen
         name="Register"
         component={Register}
-        options={Object.assign(routeOption('Register'), {
-          headerLeft: () => (
-            <Icon
-              name="arrow-back"
-              color="white"
-              size={30}
-              style={{marginLeft: 10, marginRight: -30}}
-            />
-          ),
-        })}
+        options={({navigation}) =>
+          Object.assign(routeOption('Register'), {
+            headerLeft: () => (
+              <Icon
+                name="arrow-back"
+                color="white"
+                size={30}
+                onPress={() => navigation.goBack()}
+                style={{marginLeft: 10, marginRight: -30}}
+              />
+            ),
+          })
+        }
       />
     </Stack.Navigator>
   );

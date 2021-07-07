@@ -6,7 +6,7 @@ export const AuthContext = createContext();
 
 export default function AuthProvider({children}) {
   const [user, setCurrentUser] = useState();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
