@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Image} from 'react-native';
+import {View, Text} from 'react-native';
 import {useAuth} from '../providers/AuthProvider';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
@@ -9,19 +9,21 @@ import Camera from '../screens/Camera/Camera';
 import Stories from '../screens/Stories/Stories';
 import Calls from '../screens/Calls/Calls';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useTheme} from '../providers/StyleProvider';
+import {isIphoneWithNotch} from '../utils';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
-export default function PrivateRoutes() {
+function TabNavigator() {
   const {user} = useAuth();
-  const {colors, rootStyles} = useTheme();
+  const {colors} = useTheme();
   return (
     <>
       <Tab.Navigator
         initialRouteName="Chats"
-        style={{marginTop: 100, backgroundColor: colors.HEADER}}
+        style={{backgroundColor: colors.HEADER}}
         tabBarOptions={{
           showIcon: true,
           iconStyle: {marginBottom: -35},
@@ -48,9 +50,57 @@ export default function PrivateRoutes() {
           })}
         />
         <Tab.Screen name="Chats" component={Chats} />
-        <Tab.Screen name="Stories" component={Stories} />
+        <Tab.Screen name="Status" component={Stories} />
         <Tab.Screen name="Calls" component={Calls} />
       </Tab.Navigator>
     </>
+  );
+}
+
+export default function PrivateRoutes() {
+  const {colors, rootStyles} = useTheme();
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Tab"
+        component={TabNavigator}
+        options={({navigation, route}) => ({
+          headerTitle: '',
+          headerStyle: {
+            backgroundColor: colors.HEADER,
+            height: isIphoneWithNotch() ? 90 : 50,
+            shadowRadius: 0,
+            shadowOpacity: 0,
+            shadowOffset: {
+              height: 0,
+              width: 0,
+            },
+          },
+          headerLeft: () => (
+            <View style={rootStyles.flexRow}>
+              <Entypo
+                name="dots-three-vertical"
+                color={colors.INACTIVE_TINT}
+                size={20}
+                style={rootStyles.mx4}
+              />
+              <Ionicons name="search" color={colors.INACTIVE_TINT} size={20} />
+            </View>
+          ),
+          headerRight: () => (
+            <Text
+              style={{
+                color: colors.INACTIVE_TINT,
+                fontSize: 20,
+                fontWeight: 'bold',
+                ...rootStyles.me2,
+              }}>
+              WhatsappClone
+            </Text>
+          ),
+        })}
+      />
+      <Stack.Screen name="Settings" component={Settings} />
+    </Stack.Navigator>
   );
 }

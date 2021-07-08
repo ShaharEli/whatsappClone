@@ -11,7 +11,11 @@ const getRefreshOrThrow = async () => {
 
 export const getAccessToken = async () => {
   const refreshToken = await getRefreshOrThrow();
-  return await publicFetch('/auth/get-token', 'POST', {refreshToken});
+  const {accessToken} = await publicFetch('/auth/get-token', 'POST', {
+    refreshToken,
+  });
+  await setItem('accessToken', accessToken);
+  return accessToken;
 };
 
 export const loginByPass = async (phone, password) => {

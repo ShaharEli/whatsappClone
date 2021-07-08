@@ -7,6 +7,7 @@ import './src/styles/loadFonts.js';
 import {LogBox} from 'react-native';
 LogBox.ignoreLogs([
   'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
+  'If you want to use Reanimated 2 ',
 ]);
 
 const App = () => {
