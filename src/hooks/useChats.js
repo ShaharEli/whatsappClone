@@ -5,6 +5,7 @@ import {getAllChats} from '../api/chat';
 export const useChats = () => {
   const [loadingChats, setLoadingChats] = useState(true);
   const [chats, setChats] = useState([false]);
+  const [promise, setPromise] = useState();
   const fetchChats = async () => {
     setLoadingChats(true);
     const usersChats = await getAllChats();

@@ -9,6 +9,7 @@ import {useData} from '../../providers/DataProvider';
 export default function Chats({navigation}) {
   const {colors, rootStyles} = useTheme();
   const {chats, loadingChats, refetchChats} = useData();
+
   return (
     <ScreenWrapper>
       <FlatList

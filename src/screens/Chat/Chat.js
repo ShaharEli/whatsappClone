@@ -21,7 +21,10 @@ const checkIfChatExists = (chats, {_id: ourId}, {_id: contactID}) => {
       if (
         chat.participants.reduce(
           (acc, curr) =>
-            acc + ([ourId, contactID].find(elm => elm === curr) ? 1 : 0),
+            acc +
+            ([ourId, contactID].find(elm => elm === curr || elm === curr?._id)
+              ? 1
+              : 0),
           0,
         ) === 2
       ) {
@@ -32,13 +35,27 @@ const checkIfChatExists = (chats, {_id: ourId}, {_id: contactID}) => {
   return false;
 };
 
+let timeout;
+
 export default function Chat({route}) {
   const [messages, setMessages] = useState([]);
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
-  const {chats, setChats} = useData();
+  const {chats, setChats, loadingChats} = useData();
   const {user} = useAuth();
+  const [typing, setTyping] = useState(false);
   const {colors, rootStyles} = useTheme();
+  const [input, setInput] = useState('');
+
+  const onSubmit = async () => {};
+
+  const onChangeText = text => {
+    setInput(text);
+    setTyping(true);
+    timeout = setTimeout(() => {
+      setTyping(false);
+    }, 3 * 1000);
+  };
 
   const fetchChat = async () => {
     if (route.params?.fromContacts && route.params?._id) {
@@ -57,9 +74,17 @@ export default function Chat({route}) {
     setLoading(false);
   };
   useEffect(() => {
+    if (loadingChats) return;
     fetchChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.params]);
+
+    return () => {
+      setTyping(false);
+      clearTimeout(timeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params, loadingChats]);
+  const headerHeight = useHeaderHeight();
 
   if (loading) return <Loading />;
 
@@ -67,46 +92,16 @@ export default function Chat({route}) {
     <KeyboardAvoidingView
       behavior="height"
       enabled
+      keyboardVerticalOffset={headerHeight}
       style={[rootStyles.bg(colors), rootStyles.flex1]}>
       <FlatList
-        renderItem={({item}) => {
-          console.log(item);
-          return <Text style={{color: 'white'}}>{item}</Text>;
-        }}
-        data={[
-          'd',
-          'd',
-          'df',
-          'df',
-          'df',
-          'd',
-          'd',
-          'df',
-          'df',
-          'df',
-          'd',
-          'd',
-          'df',
-          'df',
-          'df',
-          'd',
-          'd',
-          'df',
-          'df',
-          'df',
-          'd',
-          'd',
-          'df',
-          'df',
-          'df',
-          'd',
-          'd',
-          'df',
-          'df',
-          'df',
-        ]}
-        keyExtractor={e => e + Math.random()}
-        ListHeaderComponent={<ChatInput />}
+        ListHeaderComponent={
+          <ChatInput
+            value={input}
+            onChangeText={onChangeText}
+            onSubmit={onSubmit}
+          />
+        }
         inverted
       />
     </KeyboardAvoidingView>
