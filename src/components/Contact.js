@@ -21,9 +21,11 @@ export default function Contact({
         onPress
           ? onPress()
           : navigation.navigate('Chat', {
-              id: _id,
+              _id,
               avatar: avatar ? {uri: avatar} : assets.profilePlaceholder,
               name: [firstName, lastName].join(' '),
+              type: 'private',
+              fromContacts: true,
             })
       }
       style={[rootStyles.flexRow, rootStyles.p2, rootStyles.alignCenter]}>

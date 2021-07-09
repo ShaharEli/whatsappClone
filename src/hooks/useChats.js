@@ -20,5 +20,6 @@ export const useChats = () => {
     chats,
     loadingChats,
     refetchChats: fetchChats,
+    setChats,
   };
 };

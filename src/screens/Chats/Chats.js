@@ -9,13 +9,13 @@ import {useData} from '../../providers/DataProvider';
 export default function Chats({navigation}) {
   const {colors, rootStyles} = useTheme();
   const {chats, loadingChats, refetchChats} = useData();
-  const [refreshing, setRefreshing] = useState();
-
   return (
     <ScreenWrapper>
       <FlatList
         refreshing={loadingChats}
         onRefresh={refetchChats}
+        data={chats.filter(chat => !!chat.lastMessage)}
+        keyExtractor={item => item._id}
         ListEmptyComponent={
           <Text
             style={[
@@ -24,7 +24,7 @@ export default function Chats({navigation}) {
               rootStyles.alignSelfCenter,
               rootStyles.mt10,
             ]}>
-            No messages found
+            No chats found
           </Text>
         }
       />

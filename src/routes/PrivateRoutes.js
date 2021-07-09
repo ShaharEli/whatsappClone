@@ -125,6 +125,7 @@ export default function PrivateRoutes() {
                 options={CONTACTS_OPTIONS(refetchContacts)} //EDIT OPTIONS
               />
             ),
+            unmountOnBlur: true,
             headerLeft: () => (
               <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
                 <Ionicons

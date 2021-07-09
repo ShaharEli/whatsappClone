@@ -9,7 +9,7 @@ export const DataContext = createContext();
 const socketManager = new SocketController();
 
 export default function DataProvider({children}) {
-  const {loadingChats, refetchChats, chats} = useChats();
+  const {loadingChats, refetchChats, chats, setChats} = useChats();
 
   useEffect(() => {
     AppState.addEventListener('change', state => {
@@ -29,14 +29,14 @@ export default function DataProvider({children}) {
 
   return (
     <DataContext.Provider
-      value={{socketManager, chats, refetchChats, loadingChats}}>
+      value={{socketManager, chats, refetchChats, loadingChats, setChats}}>
       {children}
     </DataContext.Provider>
   );
 }
 
 export const useData = () => {
-  const {socketManager, chats, refetchChats, loadingChats} =
+  const {socketManager, chats, refetchChats, loadingChats, setChats} =
     useContext(DataContext);
-  return {socketManager, chats, refetchChats, loadingChats};
+  return {socketManager, chats, refetchChats, loadingChats, setChats};
 };

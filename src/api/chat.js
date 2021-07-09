@@ -5,7 +5,24 @@ import {getItem, setItem} from '../utils/storage.util';
 import securedFetch from './privateFetch';
 const BASE = '/chat';
 
-export const getChat = async ({id, type}) => {};
+export const getChatFromContact = async ({_id, type}) => {};
+
+export const createChat = async (participants, type) => {
+  try {
+    const {newChat} = await securedFetch(`${BASE}/new`, 'POST', {
+      participants,
+      type,
+    });
+    return newChat;
+  } catch ({error}) {
+    logger.error(error);
+    Snackbar.show({
+      text: error,
+      duration: Snackbar.LENGTH_SHORT,
+    });
+    return false;
+  }
+};
 
 export const getAllChats = async () => {
   try {
