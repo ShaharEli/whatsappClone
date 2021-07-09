@@ -11,6 +11,7 @@ import {
 import {createChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
 import Loading from '../../components/Loading';
+import {useMessages} from '../../hooks';
 import {useAuth} from '../../providers/AuthProvider';
 import {useData} from '../../providers/DataProvider';
 import {useTheme} from '../../providers/StyleProvider';
@@ -41,21 +42,12 @@ export default function Chat({route}) {
   const [messages, setMessages] = useState([]);
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
-  const {chats, setChats, loadingChats} = useData();
+  const {chats, setChats, loadingChats, chatsError, socketController} =
+    useData();
   const {user} = useAuth();
-  const [typing, setTyping] = useState(false);
   const {colors, rootStyles} = useTheme();
-  const [input, setInput] = useState('');
-
+  const {onChangeText, input} = useMessages(chat, socketController);
   const onSubmit = async () => {};
-
-  const onChangeText = text => {
-    setInput(text);
-    setTyping(true);
-    timeout = setTimeout(() => {
-      setTyping(false);
-    }, 3 * 1000);
-  };
 
   const fetchChat = async () => {
     if (route.params?.fromContacts && route.params?._id) {
@@ -74,14 +66,8 @@ export default function Chat({route}) {
     setLoading(false);
   };
   useEffect(() => {
-    if (loadingChats) return;
+    if (loadingChats || chatsError) return;
     fetchChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-
-    return () => {
-      setTyping(false);
-      clearTimeout(timeout);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.params, loadingChats]);
   const headerHeight = useHeaderHeight();

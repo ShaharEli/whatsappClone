@@ -4,12 +4,18 @@ import {getAccessToken} from './auth';
 import socketIOClient from 'socket.io-client';
 
 export class SocketController {
-  constructor() {
+  constructor({setChats, setNotifications}) {
     this.connect();
+    this.setChats = setChats;
+    this.setNotifications = setNotifications;
   }
 
   async initListeners() {
     this.socket.on('connect_error', this.onConnectionError);
+  }
+
+  emit(event, data = {}, cb = () => {}) {
+    this.socket.emit(event, data, cb);
   }
 
   async connect(token) {

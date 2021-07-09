@@ -4,12 +4,14 @@ import {getAllChats} from '../api/chat';
 // add save chats to local storage to use without network
 export const useChats = () => {
   const [loadingChats, setLoadingChats] = useState(true);
-  const [chats, setChats] = useState([false]);
-  const [promise, setPromise] = useState();
+  const [chats, setChats] = useState([]);
+  const [error, setError] = useState(false);
+
   const fetchChats = async () => {
     setLoadingChats(true);
     const usersChats = await getAllChats();
-    setChats(usersChats);
+    if (!usersChats) setError(true);
+    else setChats(usersChats);
     setLoadingChats(false);
   };
 
@@ -22,5 +24,6 @@ export const useChats = () => {
     loadingChats,
     refetchChats: fetchChats,
     setChats,
+    chatError: error,
   };
 };

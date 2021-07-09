@@ -30,6 +30,6 @@ export const getAllChats = async () => {
     return chats;
   } catch ({error}) {
     logger.error(error);
-    return [];
+    return false;
   }
 };
