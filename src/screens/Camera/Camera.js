@@ -1,18 +1,16 @@
 import {useIsFocused} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  BackHandler,
-  ImageBackground,
-} from 'react-native';
+import {useCallback} from 'react';
+import {StyleSheet, View, ImageBackground} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useTheme} from '../../providers/StyleProvider';
 import {logger} from '../../utils';
 
 export default function Camera({navigation}) {
-  const navigateToChat = () => navigation.navigate('Chats');
+  const navigateToChat = useCallback(
+    () => navigation.navigate('ChatsStack'),
+    [navigation],
+  );
   const {rootStyles} = useTheme();
   const isFocused = useIsFocused();
   const [image, setImage] = useState(null);

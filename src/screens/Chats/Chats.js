@@ -1,11 +1,23 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import FloatingBtn from '../../components/FloatingBtn';
+import {useTheme} from '../../providers/StyleProvider';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {ScreenWrapper} from '../../styles/styleComponents';
 
-export default function Chats() {
+export default function Chats({navigation}) {
+  const {colors, rootStyles} = useTheme();
+
   return (
-    <View>
-      <Text>Chats</Text>
-    </View>
+    <ScreenWrapper>
+      <FloatingBtn onPress={() => navigation.navigate('Contacts')}>
+        <MaterialCommunityIcons
+          name="message-reply-text"
+          color={colors.SECONDARY_FONT}
+          size={35}
+        />
+      </FloatingBtn>
+    </ScreenWrapper>
   );
 }
 

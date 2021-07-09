@@ -4,3 +4,5 @@ export * from './logger.util';
 export * from './regex.util';
 export * from './assets.util';
 export * from './formatters.util';
+export * from './cache.util';
+export * from './time.util';

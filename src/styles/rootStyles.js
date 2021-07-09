@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {MAX_HEIGHT, MAX_WIDTH} from '../utils';
+import {AVATAR_SIZE, MAX_HEIGHT, MAX_WIDTH} from '../utils';
 import COLOR from './themes/generalColors';
 export default StyleSheet.create({
   container: {
@@ -110,6 +110,11 @@ export default StyleSheet.create({
   p1: {padding: 10},
   p2: {padding: 15},
   p3: {padding: 20},
+  avatar: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE,
+  },
   flex1: {
     flex: 1,
   },
@@ -362,7 +367,7 @@ export default StyleSheet.create({
   textColor: color => ({
     color,
   }),
-  backgroundColor: ({bg: backgroundColor}) => ({
+  backgroundColor: ({BG: backgroundColor}) => ({
     backgroundColor,
   }),
   flex: flex => ({

@@ -2,6 +2,7 @@ export default {
   STATUSE_BAR: '#1D222B',
   GREEN_PRIMARY: '#00AF9B',
   HEADER: '#25303C',
+  SECONDARY_FONT: 'white',
   INACTIVE_TINT: '#8B8B8B',
   INDICATOR: '#00AF9B',
   TEXT_INPUT_LABEL: '#539EF2',
@@ -14,6 +15,6 @@ export default {
   SECONDARY: '#e69426',
   MODAL_BG: 'rgba(74, 74, 75, 0.7)',
   BG_COLOR: '#f7f7f8',
-  PRIMARY_FONT: '#2d217d',
-  SECONDARY_FONT: '#78849e',
+  SETTINGS_MENU: '#25303C',
+  ANTI_COLOR: 'black',
 };

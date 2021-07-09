@@ -5,10 +5,9 @@ import 'react-native-gesture-handler';
 import Routes from './src/routes';
 import './src/styles/loadFonts.js';
 import {LogBox} from 'react-native';
-LogBox.ignoreLogs([
-  'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
-  'If you want to use Reanimated 2 ',
-]);
+import {LOGS_TO_IGNORE} from './src/utils';
+
+LogBox.ignoreLogs(LOGS_TO_IGNORE);
 
 const App = () => {
   return (

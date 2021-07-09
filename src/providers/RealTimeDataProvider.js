@@ -1,4 +1,4 @@
-import React, {createContext, useState, useEffect} from 'react';
+import React, {createContext, useEffect} from 'react';
 import {AppState} from 'react-native';
 import socketIOClient from 'socket.io-client';
 import {getAccessToken} from '../api/auth';

@@ -1,7 +1,7 @@
 import React from 'react';
-import {View, Image} from 'react-native';
+import {View, Image, StyleSheet} from 'react-native';
 import {useTheme} from '../providers/StyleProvider';
-import {assets} from '../utils';
+import {assets, AVATAR_SIZE} from '../utils';
 
 export function WidthContainer({children}) {
   const {rootStyles} = useTheme();
@@ -52,3 +52,29 @@ export function Logo({
     />
   );
 }
+
+export const ScreenWrapper = ({children, style = {}}) => {
+  const {rootStyles, colors} = useTheme();
+  return (
+    <View style={[rootStyles.backgroundColor(colors), rootStyles.flex1, style]}>
+      {children}
+    </View>
+  );
+};
+
+export const CircleWrapper = ({children, size = AVATAR_SIZE}) => {
+  const {colors} = useTheme();
+  return <View style={styles.circleContainer(colors, size)}>{children}</View>;
+
+  // return <View style={styles.circleContainer(colors, size)}>{children}</View>;
+};
+const styles = StyleSheet.create({
+  circleContainer: (colors, size) => ({
+    width: size,
+    height: size,
+    backgroundColor: colors.GREEN_PRIMARY,
+    borderRadius: size,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }),
+});

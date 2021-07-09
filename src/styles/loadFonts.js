@@ -1,6 +1,10 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+AntDesign.loadFont();
 Ionicons.loadFont();
 MaterialIcons.loadFont();
 Entypo.loadFont();
+MaterialCommunityIcons.loadFont();

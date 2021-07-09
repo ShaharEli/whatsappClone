@@ -19,8 +19,7 @@ export default async function securedFetch(
     mode: 'cors',
     cache: 'no-cache',
   };
-  if (body) fetchOptions.body = body;
-
+  if (body) fetchOptions.body = JSON.stringify(body);
   if (options?.headers) {
     options.headers.forEach(([x, y]) => {
       headers[x] = y;
@@ -33,7 +32,7 @@ export default async function securedFetch(
   switch (response.status) {
     case 200:
       return data;
-    case 401:
+    case 403:
       return await getAccessTokenAndRetry(path, method, body, options);
     default:
       throw data;

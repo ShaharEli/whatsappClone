@@ -19,3 +19,51 @@ export function isIphoneWithNotch() {
       dimen.width === 926)
   );
 }
+export const SETTINGS_MENU_SIZE = 150;
+
+export const FLOATING_BTN_SIZE = 70;
+
+export const LOGS_TO_IGNORE = [
+  'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
+  'If you want to use Reanimated 2 ',
+];
+
+export const CHAT_OPTIONS = [
+  {
+    label: 'New group',
+    route: 'NewGroup',
+  },
+  {
+    label: 'New broadcast',
+    route: 'Broadcast',
+  },
+  {
+    label: 'Starred messages',
+    route: 'FavoriteMsgs',
+  },
+  {
+    label: 'Settings',
+    route: 'Settings',
+  },
+];
+
+export const CONTACTS_OPTIONS = [
+  {
+    label: 'Invite friends',
+    onPress: () => {},
+  },
+  {
+    label: 'Contacts',
+    onPress: () => {},
+  },
+  {
+    label: 'Refresh',
+    onPress: () => {},
+  },
+  {
+    label: 'Help',
+    onPress: () => {},
+  },
+];
+
+export const AVATAR_SIZE = 50;

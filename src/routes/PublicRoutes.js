@@ -17,7 +17,7 @@ export default function PublicRoutes() {
         backgroundColor: colors.HEADER,
       },
       headerTitleAlign: 'left',
-      headerTintColor: '#fff',
+      headerTintColor: colors.INACTIVE_TINT,
       headerTitleStyle: {
         fontWeight: 'bold',
       },
@@ -39,7 +39,7 @@ export default function PublicRoutes() {
             headerLeft: () => (
               <Icon
                 name="arrow-back"
-                color="white"
+                color={colors.INACTIVE_TINT}
                 size={30}
                 onPress={() => navigation.goBack()}
                 style={{marginLeft: 10, marginRight: -30}}

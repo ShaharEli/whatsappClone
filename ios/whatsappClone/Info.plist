@@ -6,6 +6,8 @@
 	<string>Share photos with friends</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Search for contact in your phone</string>
 	<key>CFBundleDisplayName</key>
 	<string>whatsappClone</string>
 	<key>CFBundleExecutable</key>
