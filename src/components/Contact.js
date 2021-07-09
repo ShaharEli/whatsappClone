@@ -18,7 +18,13 @@ export default function Contact({
   return (
     <TouchableOpacity
       onPress={() =>
-        onPress ? onPress() : navigation.navigate('Chat', {id: _id})
+        onPress
+          ? onPress()
+          : navigation.navigate('Chat', {
+              id: _id,
+              avatar: avatar ? {uri: avatar} : assets.profilePlaceholder,
+              name: [firstName, lastName].join(' '),
+            })
       }
       style={[rootStyles.flexRow, rootStyles.p2, rootStyles.alignCenter]}>
       {icon ? (

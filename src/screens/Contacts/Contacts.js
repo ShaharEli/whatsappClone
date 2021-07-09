@@ -34,31 +34,28 @@ const CONTACTS_BASE_OPTIONS = (colors, navigation) => [
 ];
 
 export default function Contacts({route, navigation}) {
-  const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
-  const [contacts, setContacts] = useState(
-    CONTACTS_BASE_OPTIONS(colors, navigation),
-  );
+  const [refreshing, setRefreshing] = useState(false);
 
-  //   useEffect(() => {
-  //     (async () => {
-  //       const userContacts = await getContacts(user);
-  //       setContacts(prev => [...prev, ...userContacts]);
-  //     })();
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [user]);
-
-  const {contacts: userContacts, contactsLoading} = useContacts(user);
+  const {
+    contacts: userContacts,
+    contactsLoading,
+    refetchContacts,
+  } = useContacts();
 
   return (
     <ScreenWrapper>
       {contactsLoading ? (
-        <View style={rootStyles.box}>
+        <View style={[rootStyles.flex1, rootStyles.box]}>
           <ActivityIndicator />
         </View>
       ) : (
         <FlatList
-          data={[...contacts, ...userContacts]}
+          onRefresh={() => {
+            refetchContacts(setRefreshing);
+          }}
+          refreshing={refreshing}
+          data={[...CONTACTS_BASE_OPTIONS(colors, navigation), ...userContacts]}
           keyExtractor={contact => (contact?.id ? contact.id : contact._id)}
           renderItem={({item: contact}) => (
             <Contact {...contact} navigation={navigation} />

@@ -47,7 +47,7 @@ export const CHAT_OPTIONS = [
   },
 ];
 
-export const CONTACTS_OPTIONS = [
+export const CONTACTS_OPTIONS = refresh => [
   {
     label: 'Invite friends',
     onPress: () => {},
@@ -58,7 +58,7 @@ export const CONTACTS_OPTIONS = [
   },
   {
     label: 'Refresh',
-    onPress: () => {},
+    onPress: refresh,
   },
   {
     label: 'Help',

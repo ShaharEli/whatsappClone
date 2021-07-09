@@ -1,23 +1,6 @@
-import {logger, setItem} from '../utils';
+import {logger} from '../utils';
 import securedFetch from './privateFetch';
 const BASE = '/contacts';
-
-// export const getContacts = async ({contacts}) => {
-//   try {
-//     const {contacts: userContacts} = await securedFetch(
-//       `${BASE}/get-contacts`,
-//       'POST',
-//       {
-//         contacts,
-//       },
-//     );
-//     await setItem('contacts', userContacts);
-//     return userContacts;
-//   } catch ({error}) {
-//     logger.error(error);
-//     return [];
-//   }
-// };
 
 export const searchInContacts = async contacts => {
   try {

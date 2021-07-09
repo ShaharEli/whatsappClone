@@ -10,6 +10,7 @@ export default function SettingsMenu({
   navigation,
   onSearch,
   options,
+  noSearch = false,
   withSettings = true,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,12 +27,14 @@ export default function SettingsMenu({
             style={rootStyles.mx4}
           />
         )}
-        <Ionicons
-          onPress={onSearch}
-          name="search"
-          color={colors.INACTIVE_TINT}
-          size={20}
-        />
+        {!noSearch && (
+          <Ionicons
+            onPress={onSearch}
+            name="search"
+            color={colors.INACTIVE_TINT}
+            size={20}
+          />
+        )}
       </View>
       {isMenuOpen && (
         <TouchableOpacity

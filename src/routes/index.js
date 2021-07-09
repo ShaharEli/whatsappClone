@@ -1,7 +1,7 @@
 import {NavigationContainer} from '@react-navigation/native';
 import React from 'react';
 import {useAuth} from '../providers/AuthProvider';
-import RealTimeDataProvider from '../providers/RealTimeDataProvider';
+import DataProvider from '../providers/DataProvider';
 import PrivateRoutes from './PrivateRoutes';
 import PublicRoutes from './PublicRoutes';
 
@@ -11,9 +11,9 @@ export default function Routes() {
   return (
     <NavigationContainer>
       {isSigned ? (
-        <RealTimeDataProvider>
+        <DataProvider>
           <PrivateRoutes />
-        </RealTimeDataProvider>
+        </DataProvider>
       ) : (
         <PublicRoutes />
       )}

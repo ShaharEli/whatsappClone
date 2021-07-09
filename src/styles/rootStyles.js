@@ -115,6 +115,7 @@ export default StyleSheet.create({
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE,
   },
+  customAvatar: size => ({width: size, height: size, borderRadius: size}),
   flex1: {
     flex: 1,
   },

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {PermissionsAndroid, Platform} from 'react-native';
 import Contacts from 'react-native-contacts';
-import {logger, withCache} from '../utils';
+import {logger, setItem, withCache} from '../utils';
 import {searchInContacts} from '../api/contacts';
 
 const extractNumbers = contacts => {
@@ -58,12 +58,14 @@ export const useContacts = () => {
         });
     }
   };
-  useEffect(() => withCache('contacts', getContacts), []);
+  useEffect(() => getContacts(), []);
 
   useEffect(() => {
     (async () => {
       if (userContacts.length) {
-        const contactsInUserContacts = await searchInContacts(userContacts);
+        const contactsInUserContacts = await withCache('contacts', () =>
+          searchInContacts(userContacts),
+        );
         setPopulatedContacts(contactsInUserContacts);
         setLoadingContacts(false);
       }
@@ -73,6 +75,17 @@ export const useContacts = () => {
   return {
     contacts: populatedContacts,
     contactsLoading: loadingContacts,
-    refetchContacts: getContacts,
+    refetchContacts: async customLoadingState => {
+      if (customLoadingState) customLoadingState(true);
+      else setLoadingContacts(true);
+      const contactsInUserContacts = await searchInContacts(userContacts);
+      await setItem('contacts', {
+        data: contactsInUserContacts,
+        timeStamp: new Date().valueOf(),
+      });
+      setPopulatedContacts(contactsInUserContacts);
+      if (customLoadingState) customLoadingState(false);
+      else setLoadingContacts(false);
+    },
   };
 };

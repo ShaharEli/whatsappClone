@@ -1,6 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {useAuth} from '../providers/AuthProvider';
+import {StyleSheet, Text, View, Image} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Settings from '../screens/Settings/Settings';
@@ -9,15 +8,22 @@ import Stories from '../screens/Stories/Stories';
 import Calls from '../screens/Calls/Calls';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {useTheme} from '../providers/StyleProvider';
-import {CHAT_OPTIONS, CONTACTS_OPTIONS, isIphoneWithNotch} from '../utils';
-import ChatsStack from './ChatsStack';
+import {
+  CHAT_OPTIONS,
+  CONTACTS_OPTIONS,
+  getActiveRouteState,
+  isIphoneWithNotch,
+} from '../utils';
 import SettingsMenu from '../components/SettingsMenu';
 import NewGroup from '../screens/NewGroup/NewGroup';
 import Broadcast from '../screens/Broadcast/Broadcast';
 import FavoriteMsgs from '../screens/FavoriteMsgs/FavoriteMsgs';
 import Contacts from '../screens/Contacts/Contacts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import {useContacts} from '../hooks';
+import Chat from '../screens/Chat/Chat';
+import Chats from '../screens/Chats/Chats';
+import ProfileView from '../screens/ProfileView/ProfileView';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 const baseHeader = colors => ({
@@ -36,14 +42,13 @@ const baseHeader = colors => ({
 });
 
 function TabNavigator() {
-  const {user} = useAuth();
   const {colors} = useTheme();
   return (
     <>
       <Tab.Navigator
-        initialRouteName="ChatsStack"
+        initialRouteName="Chats"
         style={{backgroundColor: colors.HEADER}}
-        tabBarOptions={tabBarStyle(colors)}>
+        tabBarOptions={styles.tabBarStyle(colors)}>
         <Tab.Screen
           name="Camera"
           component={Camera}
@@ -59,11 +64,16 @@ function TabNavigator() {
           })}
         />
         <Tab.Screen
-          name="ChatsStack"
-          options={() => ({
-            title: 'Chats',
-          })}
-          component={ChatsStack}
+          name="Chats"
+          options={({navigation}) => {
+            const name = getActiveRouteState(
+              navigation.dangerouslyGetState(),
+            ).name;
+            return {
+              title: 'Chats',
+            };
+          }}
+          component={Chats}
         />
         <Tab.Screen name="Status" component={Stories} />
         <Tab.Screen name="Calls" component={Calls} />
@@ -74,7 +84,7 @@ function TabNavigator() {
 
 export default function PrivateRoutes() {
   const {colors, rootStyles} = useTheme();
-  const {user} = useAuth();
+  const {contacts, contactsLoading, refetchContacts} = useContacts();
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -100,6 +110,51 @@ export default function PrivateRoutes() {
       <Stack.Screen name="NewGroup" component={NewGroup} />
       <Stack.Screen name="Broadcast" component={Broadcast} />
       <Stack.Screen name="FavoriteMsgs" component={FavoriteMsgs} />
+      <Stack.Screen name="ProfileView" component={ProfileView} />
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
+        options={({navigation, route}) => {
+          const {avatar, name, _id} = route.params;
+          return {
+            ...baseHeader(colors),
+            headerRight: () => (
+              <SettingsMenu
+                noSearch
+                navigation={navigation}
+                options={CONTACTS_OPTIONS(refetchContacts)} //EDIT OPTIONS
+              />
+            ),
+            headerLeft: () => (
+              <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
+                <Ionicons
+                  name="arrow-back"
+                  color={colors.INACTIVE_TINT}
+                  size={30}
+                  onPress={() => navigation.goBack()}
+                  style={rootStyles.mx3}
+                />
+                <Image source={avatar} style={rootStyles.customAvatar(30)} />
+                <Text
+                  onPress={() =>
+                    navigation.navigate('ProfileView', {
+                      avatar,
+                      name,
+                      _id,
+                    })
+                  }
+                  style={[
+                    rootStyles.ms4,
+                    styles.headerRight(colors),
+                    styles.clickableTitle,
+                  ]}>
+                  {name}
+                </Text>
+              </View>
+            ),
+          };
+        }}
+      />
       <Stack.Screen
         name="Contacts"
         component={Contacts}
@@ -109,7 +164,7 @@ export default function PrivateRoutes() {
             <SettingsMenu
               onSearch={() => navigation.setParams({searching: true})}
               navigation={navigation}
-              options={CONTACTS_OPTIONS}
+              options={CONTACTS_OPTIONS(refetchContacts)}
             />
           ),
           headerLeft: () => (
@@ -128,7 +183,7 @@ export default function PrivateRoutes() {
                 <Text
                   onPress={() => navigation.goBack()}
                   style={[rootStyles.me2, styles.headerRightSmall(colors)]}>
-                  {user.contacts.length} contacts
+                  {contactsLoading ? '' : `${contacts?.length} contacts`}
                 </Text>
               </View>
             </View>
@@ -148,16 +203,18 @@ const styles = StyleSheet.create({
   headerRightSmall: colors => ({
     color: colors.INACTIVE_TINT,
   }),
-});
-
-const tabBarStyle = colors => ({
-  showIcon: true,
-  iconStyle: {marginBottom: -35},
-  indicatorStyle: {backgroundColor: colors.INDICATOR, height: 3},
-  activeTintColor: colors.INDICATOR,
-  inactiveTintColor: colors.INACTIVE_TINT,
-  labelStyle: {fontSize: 13},
-  style: {
-    backgroundColor: colors.HEADER,
+  clickableTitle: {
+    width: '140%',
   },
+  tabBarStyle: colors => ({
+    showIcon: true,
+    iconStyle: {marginBottom: -35},
+    indicatorStyle: {backgroundColor: colors.INDICATOR, height: 3},
+    activeTintColor: colors.INDICATOR,
+    inactiveTintColor: colors.INACTIVE_TINT,
+    labelStyle: {fontSize: 13},
+    style: {
+      backgroundColor: colors.HEADER,
+    },
+  }),
 });
