@@ -29,6 +29,7 @@ export default function DataProvider({children}) {
       if (!socketController.socket) return;
       socketController.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

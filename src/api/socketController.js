@@ -1,10 +1,11 @@
 import {apiHost} from '../bin';
-import {getItem} from '../utils';
+import {getItem, autoBind} from '../utils';
 import {getAccessToken} from './auth';
 import socketIOClient from 'socket.io-client';
 
 export class SocketController {
   constructor({setChats, setNotifications}) {
+    autoBind(this);
     this.connect();
     this.setChats = setChats;
     this.setNotifications = setNotifications;
@@ -12,6 +13,7 @@ export class SocketController {
 
   async initListeners() {
     this.socket.on('connect_error', this.onConnectionError);
+    this.socket.on('type', this.onType);
   }
 
   emit(event, data = {}, cb = () => {}) {
@@ -42,5 +44,37 @@ export class SocketController {
         }, 60 * 1000),
       );
     }
+  }
+
+  onType({chatId, userId, isTyping}) {
+    if (!chatId || !userId) return;
+    this.setChats(prev =>
+      prev.map(chat => {
+        if (chat._id !== chatId) return chat;
+        const updatedChat = {...chat};
+        const userThatTypes = chat.participants.find(
+          user => user._id === userId,
+        );
+        if (Array.isArray(updatedChat?.usersTyping)) {
+          const typingUserIndex = updatedChat.usersTyping.findIndex(
+            user => user._id === userId,
+          );
+          if (isTyping) {
+            if (typingUserIndex === -1) {
+              updatedChat.usersTyping.push(userThatTypes);
+            }
+          } else {
+            if (typingUserIndex > -1) {
+              updatedChat.usersTyping.splice(typingUserIndex, 1);
+            }
+          }
+        } else {
+          if (isTyping) {
+            updatedChat.usersTyping = [userThatTypes];
+          }
+        }
+        return updatedChat;
+      }),
+    );
   }
 }

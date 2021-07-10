@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View, Text} from 'react-native';
 import FloatingBtn from '../../components/FloatingBtn';
 import {useTheme} from '../../providers/StyleProvider';

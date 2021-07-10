@@ -29,10 +29,12 @@ export default async function securedFetch(
   fetchOptions.headers = new Headers(headers);
   const response = await fetch(apiHostWithVersion + path, fetchOptions);
   const data = await response.json();
+
   switch (response.status) {
     case 200:
       return data;
     case 403:
+      console.log('path', path);
       return await getAccessTokenAndRetry(path, method, body, options);
     default:
       throw data;
