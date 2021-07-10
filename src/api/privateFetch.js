@@ -34,7 +34,6 @@ export default async function securedFetch(
     case 200:
       return data;
     case 403:
-      console.log('path', path);
       return await getAccessTokenAndRetry(path, method, body, options);
     default:
       throw data;

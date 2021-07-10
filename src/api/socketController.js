@@ -7,6 +7,7 @@ export class SocketController {
   constructor({setChats, setNotifications}) {
     autoBind(this);
     this.connect();
+    this.currentChat = '';
     this.setChats = setChats;
     this.setNotifications = setNotifications;
   }
@@ -14,10 +15,21 @@ export class SocketController {
   async initListeners() {
     this.socket.on('connect_error', this.onConnectionError);
     this.socket.on('type', this.onType);
+    this.socket.on('newMessage', this.onNewMessage);
   }
 
   emit(event, data = {}, cb = () => {}) {
     this.socket.emit(event, data, cb);
+  }
+
+  joinChat(chatId) {
+    this.currentChat = chatId;
+    this.emit('joinedChat', {chatId: chatId});
+  }
+
+  leaveChat() {
+    this.emit('leftChat', {chatId: this.currentChat});
+    this.currentChat = null;
   }
 
   async connect(token) {
@@ -25,6 +37,10 @@ export class SocketController {
       auth: {token: token ? token : await getItem('accessToken')},
     });
     this.initListeners();
+  }
+
+  onNewMessage(message) {
+    console.log('dfndofndojfod');
   }
 
   async disconnect() {

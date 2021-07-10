@@ -7,6 +7,16 @@ const BASE = '/chat';
 
 export const getChatFromContact = async ({_id, type}) => {};
 
+export const getMessages = async chatId => {
+  try {
+    const messages = await securedFetch(`${BASE}/messages/${chatId}`);
+    console.log(messages);
+  } catch ({error}) {
+    logger.error(error);
+    return false;
+  }
+};
+
 export const createChat = async (participants, type) => {
   try {
     const {newChat} = await securedFetch(`${BASE}/new`, 'POST', {
@@ -30,6 +40,29 @@ export const getAllChats = async () => {
     return chats;
   } catch ({error}) {
     logger.error(error);
+    return false;
+  }
+};
+
+export const sendMessage = async ({message, type, chatId, media}) => {
+  try {
+    const {newMessage, chat} = await securedFetch(
+      `${BASE}/new-message`,
+      'POST',
+      {
+        message,
+        type,
+        chatId,
+        media,
+      },
+    );
+    return {newMessage, chat};
+  } catch ({error}) {
+    logger.error(error);
+    Snackbar.show({
+      text: error,
+      duration: Snackbar.LENGTH_SHORT,
+    });
     return false;
   }
 };

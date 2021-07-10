@@ -15,39 +15,19 @@ import {useMessages} from '../../hooks';
 import {useAuth} from '../../providers/AuthProvider';
 import {useData} from '../../providers/DataProvider';
 import {useTheme} from '../../providers/StyleProvider';
-
-const checkIfChatExists = (chats, {_id: ourId}, {_id: contactID}) => {
-  for (let chat of chats) {
-    if (chat.type === 'private') {
-      if (
-        chat.participants.reduce(
-          (acc, curr) =>
-            acc +
-            ([ourId, contactID].find(elm => elm === curr || elm === curr?._id)
-              ? 1
-              : 0),
-          0,
-        ) === 2
-      ) {
-        return chat;
-      }
-    }
-  }
-  return false;
-};
-
-let timeout;
+import {checkIfChatExists} from '../../utils';
 
 export default function Chat({route}) {
-  const [messages, setMessages] = useState([]);
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
   const {chats, setChats, loadingChats, chatsError, socketController} =
     useData();
   const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
-  const {onChangeText, input} = useMessages(chat, socketController);
-  const onSubmit = async () => {};
+  const {onChangeText, input, sendMsg, messages} = useMessages(
+    chat,
+    socketController,
+  );
 
   const fetchChat = async () => {
     if (route.params?.fromContacts && route.params?._id) {
@@ -81,11 +61,12 @@ export default function Chat({route}) {
       keyboardVerticalOffset={headerHeight}
       style={[rootStyles.bg(colors), rootStyles.flex1]}>
       <FlatList
+        bounces={false}
         ListHeaderComponent={
           <ChatInput
             value={input}
             onChangeText={onChangeText}
-            onSubmit={onSubmit}
+            onSubmit={sendMsg}
           />
         }
         inverted

@@ -4,11 +4,11 @@ import {useTheme} from '../providers/StyleProvider';
 import {MAX_WIDTH} from '../utils';
 import RecordBubble from './RecordBubble';
 import Entypo from 'react-native-vector-icons/Entypo';
-export default function ChatInput({onChangeText, value}) {
+export default function ChatInput({onChangeText, value, onSubmit}) {
   const {rootStyles, colors} = useTheme();
   return (
     <View style={[rootStyles.flexRow, rootStyles.alignCenter, rootStyles.px2]}>
-      <RecordBubble isSendAvailable={!!value} />
+      <RecordBubble onSubmit={onSubmit} isSendAvailable={!!value} />
       <View style={[rootStyles.ms2, rootStyles.mb3, styles.container(colors)]}>
         <Entypo
           name="attachment"
