@@ -26,12 +26,11 @@ export const useMessages = (chat, socketController) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       setTyping(false);
-    }, 3 * 1000);
+    }, 1.5 * 1000);
   }, []);
 
   const sendMsg = useCallback(async () => {
     const chatId = chat?._id;
-    console.log(chatId);
     if (!chatId) return;
     const message = await sendMessage(
       {

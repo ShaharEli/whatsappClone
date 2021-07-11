@@ -12,6 +12,7 @@ export default StyleSheet.create({
   maxHeight: maxHeight => ({maxHeight}),
   bg: ({BG}) => ({backgroundColor: BG}),
   font: ({font}) => ({color: font}),
+  fontSize: fontSize => ({fontSize}),
   flexGrow: {
     flexGrow: 1,
   },

@@ -17,8 +17,28 @@ export function WidthContainer({children}) {
   );
 }
 
-export function Divider({children, m: marginVertical}) {
-  return <View style={{marginVertical}}>{children}</View>;
+export function Divider({
+  children,
+  m: marginVertical = 0,
+  h: height = 0,
+  bg: backgroundColor,
+  w: width,
+}) {
+  const {rootStyles} = useTheme();
+  return (
+    <View
+      style={[
+        {
+          marginVertical,
+          height,
+          backgroundColor,
+          width,
+        },
+        width && rootStyles.alignSelfCenter,
+      ]}>
+      {children}
+    </View>
+  );
 }
 
 export function Logo({

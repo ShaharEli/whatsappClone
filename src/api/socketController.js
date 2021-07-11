@@ -40,7 +40,7 @@ export class SocketController {
   }
 
   onNewMessage(message) {
-    console.log('dfndofndojfod');
+    console.log('new msg');
   }
 
   async disconnect() {
@@ -71,6 +71,7 @@ export class SocketController {
         const userThatTypes = chat.participants.find(
           user => user._id === userId,
         );
+        delete userThatTypes.avatar;
         if (Array.isArray(updatedChat?.usersTyping)) {
           const typingUserIndex = updatedChat.usersTyping.findIndex(
             user => user._id === userId,

@@ -8,4 +8,5 @@ export * from './cache.util';
 export * from './time.util';
 export * from './api.util';
 export * from './navigation.util';
+export * from './chat.util';
 export * from './classes.util';

@@ -10,7 +10,7 @@ export const getChatFromContact = async ({_id, type}) => {};
 export const getMessages = async chatId => {
   try {
     const messages = await securedFetch(`${BASE}/messages/${chatId}`);
-    console.log(messages);
+    return messages;
   } catch ({error}) {
     logger.error(error);
     return false;
