@@ -7,7 +7,13 @@ import Entypo from 'react-native-vector-icons/Entypo';
 export default function ChatInput({onChangeText, value, onSubmit}) {
   const {rootStyles, colors} = useTheme();
   return (
-    <View style={[rootStyles.flexRow, rootStyles.alignCenter, rootStyles.px2]}>
+    <View
+      style={[
+        rootStyles.flexRow,
+        rootStyles.alignCenter,
+        rootStyles.px2,
+        rootStyles.mt3,
+      ]}>
       <RecordBubble onSubmit={onSubmit} isSendAvailable={!!value} />
       <View style={[rootStyles.ms2, rootStyles.mb3, styles.container(colors)]}>
         <Entypo

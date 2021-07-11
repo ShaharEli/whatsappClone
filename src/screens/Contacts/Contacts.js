@@ -1,8 +1,6 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {ActivityIndicator, FlatList, StyleSheet, View} from 'react-native';
 import {useState} from 'react/cjs/react.development';
-// import {getContacts} from '../../api/contacts';
-import {useAuth} from '../../providers/AuthProvider';
 import {CircleWrapper, ScreenWrapper} from '../../styles/styleComponents';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useTheme} from '../../providers/StyleProvider';

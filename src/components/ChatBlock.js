@@ -1,22 +1,17 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {StyleSheet, Text, View, Image} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, Image} from 'react-native';
 import {useAuth} from '../providers/AuthProvider';
 import {useTheme} from '../providers/StyleProvider';
 import {
   dateToFromNowDaily,
   getNameAndImageFromChat,
+  MAX_WIDTH,
   pickRandomListValue,
 } from '../utils';
 import Entypo from 'react-native-vector-icons/Entypo';
 
-export default function ChatBlock({
-  type,
-  lastMessage,
-  image,
-  name,
-  participants,
-  usersTyping = [],
-}) {
+export default function ChatBlock({chat, navigation}) {
+  const {type, lastMessage, image, name, participants, usersTyping = []} = chat;
   const {user} = useAuth();
   const {rootStyles, colors} = useTheme();
   const [currentlyType, setCurrentlyType] = useState({});
@@ -58,7 +53,7 @@ export default function ChatBlock({
       case 'text':
         return (
           <View>
-            <Text style={styles.secondaryText(colors)}>
+            <Text numberOfLines={1} style={styles.secondaryText(colors)}>
               {lastMessage.content}
             </Text>
           </View>
@@ -68,7 +63,7 @@ export default function ChatBlock({
           return (
             <View>
               <Entypo name="images" size={30} color={colors.SECONDARY_FONT} />
-              <Text style={styles.secondaryText(colors)}>
+              <Text numberOfLines={1} style={styles.secondaryText(colors)}>
                 {lastMessage.content}
               </Text>
             </View>
@@ -90,7 +85,15 @@ export default function ChatBlock({
     currentlyType;
 
   return (
-    <View
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate('Chat', {
+          chat,
+          avatar: chatImage,
+          name: chatName,
+          type,
+        })
+      }
       style={[
         rootStyles.flexRow,
         rootStyles.alignCenter,
@@ -124,13 +127,14 @@ export default function ChatBlock({
           {dateToFromNowDaily(lastMessage.createdAt)}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   secondaryText: colors => ({
     color: colors.GREY_LIGHT,
+    width: MAX_WIDTH - 150,
   }),
   typingText: colors => ({
     color: colors.GREEN_PRIMARY,

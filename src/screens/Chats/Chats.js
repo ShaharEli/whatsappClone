@@ -18,7 +18,9 @@ export default function Chats({navigation}) {
         refreshing={loadingChats}
         onRefresh={refetchChats}
         data={chats.filter(chat => !!chat.lastMessage)}
-        renderItem={({item}) => <ChatBlock {...item} />}
+        renderItem={({item}) => (
+          <ChatBlock chat={item} navigation={navigation} />
+        )}
         keyExtractor={item => item._id}
         ItemSeparatorComponent={() => (
           <Divider bg={colors.GREY} h={1} w={MAX_WIDTH * 0.9} />

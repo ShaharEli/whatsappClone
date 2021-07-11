@@ -31,5 +31,5 @@ export async function publicFetch(path, method = 'GET', body, options) {
 
 export const getAccessTokenAndRetry = async (path, method, body, options) => {
   await getAccessToken();
-  await securedFetch(path, method, body, options);
+  return await securedFetch(path, method, body, options);
 };
