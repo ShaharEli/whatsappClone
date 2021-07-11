@@ -6,8 +6,7 @@ export const dateToFromNowDaily = myDate =>
   moment(myDate).calendar(null, {
     lastDay: '[Yesterday] ',
     nextWeek: 'D.M.YYYY',
-    sameDay: 'hh:mm',
+    sameDay: 'HH:mm',
     nextDay: '[Tomorrow]',
     lastWeek: 'D.M.YYYY',
-    sameElse: 'D.M.YYYY',
   });

@@ -15,7 +15,14 @@ export class SocketController {
   async initListeners() {
     this.socket.on('connect_error', this.onConnectionError);
     this.socket.on('type', this.onType);
-    this.socket.on('newMessage', this.onNewMessage);
+  }
+
+  subscribe(event, cb) {
+    this.socket.on(event, cb);
+  }
+
+  unsubscribe(event) {
+    this.socket.on(event, null);
   }
 
   emit(event, data = {}, cb = () => {}) {

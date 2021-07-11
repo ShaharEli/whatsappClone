@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useCallback} from 'react';
 import {getMessages, sendMessage} from '../api/chat';
+import {useChats} from './useChats';
 let timeout;
 let firstTyped = true;
 export const useMessages = (chat, socketController) => {
@@ -11,6 +12,7 @@ export const useMessages = (chat, socketController) => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const {setChats, chats} = useChats();
 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
@@ -50,6 +52,32 @@ export const useMessages = (chat, socketController) => {
   useEffect(() => {
     if (chat?._id) {
       socketController.joinChat(chat._id);
+      socketController.subscribe(
+        'newMessage',
+        async ({message, chat: returnedChat}) => {
+          console.log(message);
+          if (chat._id === returnedChat._id) {
+            setMessages(prev => [message, ...prev]);
+          } else {
+            //TODO notification
+            const chatIndex = chats.findIndex(
+              ({_id}) => _id === returnedChat._id,
+            );
+            if (chatIndex === -1) {
+              console.log(2);
+              setChats(prev => [...prev, {...returnedChat, unreadMessages: 1}]);
+            } else {
+              setChats(prev =>
+                prev.map((chat, index) => {
+                  if (index !== chatIndex) return chat;
+                  const {unreadMessages = 0} = chat;
+                  return {...chat, unreadMessages: unreadMessages + 1};
+                }),
+              );
+            }
+          }
+        },
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat]);
@@ -71,6 +99,7 @@ export const useMessages = (chat, socketController) => {
       if (chat?._id) {
         socketController.emit('type', {typing: false, chatId: chat?._id});
         socketController.leaveChat();
+        socketController.unsubscribe('newMessage');
         clearTimeout(timeout);
       }
     };

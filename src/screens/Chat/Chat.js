@@ -73,7 +73,9 @@ export default function Chat({route}) {
         bounces={false}
         data={messages}
         keyExtractor={item => item._id}
-        renderItem={({item}) => <MessageBlock {...item} />}
+        renderItem={({item, index}) => (
+          <MessageBlock {...item} lastMessageFrom={messages?.[index + 1]?.by} />
+        )}
         ListHeaderComponent={
           <ChatInput
             value={input}
