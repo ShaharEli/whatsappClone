@@ -1,11 +1,12 @@
 import {useHeaderHeight} from '@react-navigation/stack';
-import React, {useEffect, useState, ImageBackground} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   StyleSheet,
   Text,
   View,
   ScrollView,
+  Animated,
   KeyboardAvoidingView,
   Image,
 } from 'react-native';
@@ -17,7 +18,7 @@ import {useMessages} from '../../hooks';
 import {useAuth} from '../../providers/AuthProvider';
 import {useData} from '../../providers/DataProvider';
 import {useTheme} from '../../providers/StyleProvider';
-import {assets, checkIfChatExists, MAX_HEIGHT} from '../../utils';
+import {assets, checkIfChatExists} from '../../utils';
 
 export default function Chat({route}) {
   const [chat, setChat] = useState(null);
@@ -70,6 +71,7 @@ export default function Chat({route}) {
       />
       <FlatList
         keyboardShouldPersistTaps="handled"
+        scrollIndicatorInsets={{left: 0}}
         bounces={false}
         data={messages}
         keyExtractor={item => item._id}

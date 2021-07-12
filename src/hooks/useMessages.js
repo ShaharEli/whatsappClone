@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useCallback} from 'react';
 import {getMessages, sendMessage} from '../api/chat';
-import {useChats} from './useChats';
+import {useData} from '../providers/DataProvider';
 let timeout;
 let firstTyped = true;
 export const useMessages = (chat, socketController) => {
@@ -12,7 +12,7 @@ export const useMessages = (chat, socketController) => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const {setChats, chats} = useChats();
+  const {setChats, chats} = useData();
 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
@@ -55,26 +55,31 @@ export const useMessages = (chat, socketController) => {
       socketController.subscribe(
         'newMessage',
         async ({message, chat: returnedChat}) => {
-          console.log(message);
+          console.log(chats[0]._id, returnedChat._id);
+          const chatIndex = chats.findIndex(
+            ({_id}) => _id === returnedChat._id,
+          );
           if (chat._id === returnedChat._id) {
             setMessages(prev => [message, ...prev]);
+          }
+          //TODO notification
+          if (chatIndex === -1) {
+            setChats(prev => [
+              ...prev,
+              {...returnedChat, unreadMessages: 1, lastMessage: message},
+            ]);
           } else {
-            //TODO notification
-            const chatIndex = chats.findIndex(
-              ({_id}) => _id === returnedChat._id,
+            setChats(prev =>
+              prev.map((chat, index) => {
+                if (index !== chatIndex) return chat;
+                const {unreadMessages = 0} = chat;
+                return {
+                  ...chat,
+                  unreadMessages: unreadMessages + 1,
+                  lastMessage: message,
+                };
+              }),
             );
-            if (chatIndex === -1) {
-              console.log(2);
-              setChats(prev => [...prev, {...returnedChat, unreadMessages: 1}]);
-            } else {
-              setChats(prev =>
-                prev.map((chat, index) => {
-                  if (index !== chatIndex) return chat;
-                  const {unreadMessages = 0} = chat;
-                  return {...chat, unreadMessages: unreadMessages + 1};
-                }),
-              );
-            }
           }
         },
       );

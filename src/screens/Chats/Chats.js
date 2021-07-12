@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {FlatList, StyleSheet, View, Text} from 'react-native';
+import React, {useEffect} from 'react';
+import {FlatList, StyleSheet, Text} from 'react-native';
 import FloatingBtn from '../../components/FloatingBtn';
 import {useTheme} from '../../providers/StyleProvider';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,6 +11,12 @@ import {MAX_WIDTH} from '../../utils';
 export default function Chats({navigation}) {
   const {colors, rootStyles} = useTheme();
   const {chats, loadingChats, refetchChats} = useData();
+
+  useEffect(() => {
+    return () => {
+      console.log('hi');
+    };
+  }, []);
 
   return (
     <ScreenWrapper>
