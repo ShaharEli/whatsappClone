@@ -116,6 +116,7 @@ export default function ChatBlock({chat, navigation}) {
               rootStyles.font(colors),
               rootStyles.fontSize(20),
               rootStyles.strong,
+              rootStyles.mb1,
             ]}>
             {chatName}
           </Text>
@@ -134,12 +135,19 @@ export default function ChatBlock({chat, navigation}) {
         <Text
           style={[
             rootStyles.font(colors),
-            unreadMessages && styles.unreadMessage(colors),
+            rootStyles.mb1,
+            unreadMessages && styles.typingText(colors),
           ]}>
           {dateToFromNowDaily(lastMessage.createdAt)}
         </Text>
         {unreadMessages ? (
-          <Text style={styles.unreadMessage(colors)}>{unreadMessages}</Text>
+          <Text
+            style={[
+              styles.unreadMessage(colors),
+              styles.unreadMessageBg(colors, rootStyles),
+            ]}>
+            {unreadMessages}
+          </Text>
         ) : null}
       </View>
     </TouchableOpacity>
@@ -148,7 +156,17 @@ export default function ChatBlock({chat, navigation}) {
 
 const styles = StyleSheet.create({
   unreadMessage: colors => ({
-    color: colors.GREY_LIGHT,
+    color: colors.HEADER,
+  }),
+
+  unreadMessageBg: (colors, rootStyles) => ({
+    backgroundColor: colors.GREEN_PRIMARY,
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    textAlign: 'center',
+    ...rootStyles.box,
+    ...rootStyles.ms3,
   }),
   secondaryText: colors => ({
     color: colors.GREY_LIGHT,

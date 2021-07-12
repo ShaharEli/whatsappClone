@@ -26,7 +26,6 @@ export default function AuthProvider({children}) {
     </AuthContext.Provider>
   );
 }
-
 export const useAuth = () => {
   const {user, setCurrentUser} = useContext(AuthContext);
   const isSigned = !!user;
