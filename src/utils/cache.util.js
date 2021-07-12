@@ -16,10 +16,12 @@ export const withCache = async (val, cb, time = DAY_IN_MS) => {
       await setItem(val, {data: result, timeStamp: new Date().valueOf()});
       return result;
     } else {
-      setTimeout(async () => {
-        const result = await cb();
-        await setItem(val, {data: result, timeStamp: new Date().valueOf()});
-      }, time - timediff);
+      if (time - timediff < 60 * 1000 * 5) {
+        setTimeout(async () => {
+          const result = await cb();
+          await setItem(val, {data: result, timeStamp: new Date().valueOf()});
+        }, time - timediff);
+      }
       return data;
     }
   } catch (e) {

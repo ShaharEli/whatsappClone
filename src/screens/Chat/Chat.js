@@ -15,7 +15,7 @@ import {useMessages} from '../../hooks';
 import {useAuth} from '../../providers/AuthProvider';
 import {useData} from '../../providers/DataProvider';
 import {useTheme} from '../../providers/StyleProvider';
-import {assets, checkIfChatExists} from '../../utils';
+import {assets, checkIfChatExists, MAX_HEIGHT} from '../../utils';
 
 export default function Chat({route}) {
   const [chat, setChat] = useState(null);
@@ -75,7 +75,8 @@ export default function Chat({route}) {
       />
       <Animated.FlatList
         keyboardShouldPersistTaps="handled"
-        scrollIndicatorInsets={{left: 0}}
+        scrollEventThrottle={16}
+        scrollIndicatorInsets={{right: 0}}
         ref={flatListRef}
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {y: yProgress}}}],
@@ -83,23 +84,16 @@ export default function Chat({route}) {
             useNativeDriver: true,
           },
         )}
+        style={{maxHeight: MAX_HEIGHT - headerHeight - 80}} //TODO change to const
         bounces={false}
         data={messages}
         keyExtractor={item => item._id}
         renderItem={({item, index}) => (
           <MessageBlock {...item} lastMessageFrom={messages?.[index + 1]?.by} />
         )}
-        stickyHeaderIndices={[0]}
-        invertStickyHeaders={false}
-        ListHeaderComponent={
-          <ChatInput
-            value={input}
-            onChangeText={onChangeText}
-            onSubmit={sendMsg}
-          />
-        }
         inverted
       />
+      <ChatInput value={input} onChangeText={onChangeText} onSubmit={sendMsg} />
     </KeyboardAvoidingView>
   );
 }

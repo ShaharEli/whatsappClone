@@ -7,6 +7,7 @@ import {useTheme} from '../../providers/StyleProvider';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Contact from '../../components/Contact';
 import {useContacts} from '../../hooks';
+import ContactsHandler from 'react-native-contacts';
 
 const CONTACTS_BASE_OPTIONS = (colors, navigation) => [
   {
@@ -27,7 +28,7 @@ const CONTACTS_BASE_OPTIONS = (colors, navigation) => [
         <AntDesign name="user" color={colors.SECONDARY_FONT} size={30} />
       </CircleWrapper>
     ),
-    onPress: () => alert('implention needed'), //TODO implement
+    onPress: () => ContactsHandler.openContactForm({}),
   },
 ];
 

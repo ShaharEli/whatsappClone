@@ -29,7 +29,7 @@ const extractNumbers = contacts => {
 };
 
 export const useContacts = () => {
-  const [userContacts, setUserContacts] = useState([]);
+  const [userContacts, setUserContacts] = useState(null);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [populatedContacts, setPopulatedContacts] = useState([]);
   const getContacts = () => {
@@ -39,7 +39,7 @@ export const useContacts = () => {
         message: 'This app would like to view your contacts.',
         buttonPositive: 'accept',
       })
-        .then(() => Contacts.getAll())
+        .then(() => Contacts.getAllWithoutPhotos())
         .then(contacts => {
           setUserContacts(extractNumbers(contacts));
         })
@@ -48,7 +48,7 @@ export const useContacts = () => {
           setLoadingContacts(false);
         });
     } else {
-      Contacts.getAll()
+      Contacts.getAllWithoutPhotos()
         .then(contacts => {
           setUserContacts(extractNumbers(contacts));
         })
@@ -62,7 +62,7 @@ export const useContacts = () => {
 
   useEffect(() => {
     (async () => {
-      if (userContacts.length) {
+      if (userContacts) {
         const contactsInUserContacts = await withCache('contacts', () =>
           searchInContacts(userContacts),
         );

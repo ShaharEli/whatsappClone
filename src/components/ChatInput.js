@@ -27,7 +27,6 @@ export default function ChatInput({onChangeText, value, onSubmit}) {
           minHeight={50}
           value={value}
           onChangeText={onChangeText}
-          textAlignVertical="bottom"
           placeholder="Type message"
           style={styles.input(colors)}
           multiline
