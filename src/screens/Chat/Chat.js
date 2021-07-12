@@ -11,6 +11,7 @@ import {createChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
 import Loading from '../../components/Loading';
 import MessageBlock from '../../components/MessageBlock';
+import ScrollToBottomBubble from '../../components/ScrollToBottomBubble';
 import {useMessages} from '../../hooks';
 import {useAuth} from '../../providers/AuthProvider';
 import {useData} from '../../providers/DataProvider';
@@ -93,6 +94,7 @@ export default function Chat({route}) {
         )}
         inverted
       />
+      <ScrollToBottomBubble yProgress={yProgress} scrollToEnd={scrollToEnd} />
       <ChatInput value={input} onChangeText={onChangeText} onSubmit={sendMsg} />
     </KeyboardAvoidingView>
   );
