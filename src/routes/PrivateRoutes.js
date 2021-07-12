@@ -84,7 +84,7 @@ function TabNavigator() {
 
 export default function PrivateRoutes() {
   const {colors, rootStyles} = useTheme();
-  const {contacts, contactsLoading, refetchContacts} = useContacts();
+  const {refetchContacts} = useContacts();
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -184,7 +184,9 @@ export default function PrivateRoutes() {
                 <Text
                   onPress={() => navigation.goBack()}
                   style={[rootStyles.me2, styles.headerRightSmall(colors)]}>
-                  {contactsLoading ? '' : `${contacts?.length} contacts`}
+                  {!route?.params?.contactsNum
+                    ? ''
+                    : `${route?.params?.contactsNum} contacts`}
                 </Text>
               </View>
             </View>

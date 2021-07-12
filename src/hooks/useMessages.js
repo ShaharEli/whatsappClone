@@ -52,14 +52,22 @@ export const useMessages = (chat, socketController) => {
   useEffect(() => {
     if (chat?._id) {
       socketController.joinChat(chat._id);
+      setChats(prev => {
+        const chatIndex = prev.findIndex(({_id}) => _id === chat._id);
+        return prev.map((chat, index) =>
+          index === chatIndex ? {...chat, unreadMessages: 0} : chat,
+        );
+      });
+      socketController.unsubscribe('newMessage');
       socketController.subscribe(
         'newMessage',
-        async ({message, chat: returnedChat}) => {
-          console.log(chats[0]._id, returnedChat._id);
+        ({message, chat: returnedChat}) => {
+          console.log('chat');
           const chatIndex = chats.findIndex(
             ({_id}) => _id === returnedChat._id,
           );
-          if (chat._id === returnedChat._id) {
+          const inTheSameChat = chat._id === returnedChat._id;
+          if (inTheSameChat) {
             setMessages(prev => [message, ...prev]);
           }
           //TODO notification
@@ -75,7 +83,9 @@ export const useMessages = (chat, socketController) => {
                 const {unreadMessages = 0} = chat;
                 return {
                   ...chat,
-                  unreadMessages: unreadMessages + 1,
+                  unreadMessages: inTheSameChat
+                    ? unreadMessages
+                    : unreadMessages + 1,
                   lastMessage: message,
                 };
               }),

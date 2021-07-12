@@ -1,6 +1,6 @@
 import React from 'react';
 import {ActivityIndicator, FlatList, StyleSheet, View} from 'react-native';
-import {useState} from 'react/cjs/react.development';
+import {useEffect, useState} from 'react/cjs/react.development';
 import {CircleWrapper, ScreenWrapper} from '../../styles/styleComponents';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useTheme} from '../../providers/StyleProvider';
@@ -40,6 +40,11 @@ export default function Contacts({route, navigation}) {
     contactsLoading,
     refetchContacts,
   } = useContacts();
+
+  useEffect(() => {
+    navigation.setParams({contactsNum: userContacts.length});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userContacts]);
 
   return (
     <ScreenWrapper>

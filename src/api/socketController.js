@@ -7,9 +7,10 @@ export class SocketController {
   constructor({setChats, setNotifications}) {
     autoBind(this);
     this.connect();
-    this.currentChat = '';
+    this.currentChat = null;
     this.setChats = setChats;
     this.setNotifications = setNotifications;
+    this.isReady = false;
   }
 
   async initListeners() {
@@ -22,7 +23,7 @@ export class SocketController {
   }
 
   unsubscribe(event) {
-    this.socket.on(event, null);
+    this.socket.off(event);
   }
 
   emit(event, data = {}, cb = () => {}) {
@@ -43,11 +44,8 @@ export class SocketController {
     this.socket = socketIOClient(apiHost, {
       auth: {token: token ? token : await getItem('accessToken')},
     });
+    this.isReady = true;
     this.initListeners();
-  }
-
-  onNewMessage(message) {
-    console.log('new msg');
   }
 
   async disconnect() {
@@ -75,9 +73,9 @@ export class SocketController {
       prev.map(chat => {
         if (chat._id !== chatId) return chat;
         const updatedChat = {...chat};
-        const userThatTypes = chat.participants.find(
-          user => user._id === userId,
-        );
+        const userThatTypes = {
+          ...chat.participants.find(user => user._id === userId),
+        };
         delete userThatTypes.avatar;
         if (Array.isArray(updatedChat?.usersTyping)) {
           const typingUserIndex = updatedChat.usersTyping.findIndex(

@@ -11,7 +11,15 @@ import {
 import Entypo from 'react-native-vector-icons/Entypo';
 
 export default function ChatBlock({chat, navigation}) {
-  const {type, lastMessage, image, name, participants, usersTyping = []} = chat;
+  const {
+    type,
+    lastMessage,
+    image,
+    name,
+    participants,
+    usersTyping = [],
+    unreadMessages,
+  } = chat;
   const {user} = useAuth();
   const {rootStyles, colors} = useTheme();
   const [currentlyType, setCurrentlyType] = useState({});
@@ -123,15 +131,25 @@ export default function ChatBlock({chat, navigation}) {
         </View>
       </View>
       <View style={[rootStyles.alignSelfStart, rootStyles.mt3]}>
-        <Text style={rootStyles.font(colors)}>
+        <Text
+          style={[
+            rootStyles.font(colors),
+            unreadMessages && styles.unreadMessage(colors),
+          ]}>
           {dateToFromNowDaily(lastMessage.createdAt)}
         </Text>
+        {unreadMessages ? (
+          <Text style={styles.unreadMessage(colors)}>{unreadMessages}</Text>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
+  unreadMessage: colors => ({
+    color: colors.GREY_LIGHT,
+  }),
   secondaryText: colors => ({
     color: colors.GREY_LIGHT,
     width: MAX_WIDTH - 150,
