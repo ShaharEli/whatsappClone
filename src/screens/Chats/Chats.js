@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {FlatList, Platform, StyleSheet, Text} from 'react-native';
+import {FlatList, StyleSheet, Text} from 'react-native';
 import FloatingBtn from '../../components/FloatingBtn';
 import {useTheme} from '../../providers/StyleProvider';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -21,7 +21,6 @@ export default function Chats({navigation}) {
         'newMessage',
         ({message, chat: returnedChat}) => {
           setChats(prev => {
-            console.log(prev.length);
             const chatIndex = prev.findIndex(
               ({_id}) => _id === returnedChat._id,
             );

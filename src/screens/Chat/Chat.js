@@ -1,13 +1,10 @@
 import {useHeaderHeight} from '@react-navigation/stack';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Animated,
   KeyboardAvoidingView,
+  Animated,
   Image,
 } from 'react-native';
 import {createChat} from '../../api/chat';
@@ -27,10 +24,17 @@ export default function Chat({route}) {
     useData();
   const {user} = useAuth();
   const {colors, rootStyles, isDark} = useTheme();
+  const scrollToEnd = () => {
+    flatListRef?.current?.scrollToOffset({y: 0});
+  };
   const {onChangeText, input, sendMsg, messages} = useMessages(
     chat,
     socketController,
+    scrollToEnd,
   );
+
+  const flatListRef = useRef();
+  const yProgress = useRef(new Animated.Value(0)).current;
 
   const fetchChat = async () => {
     const fromRouteChat = route.params?.chat;
@@ -69,15 +73,24 @@ export default function Chat({route}) {
         source={isDark ? assets.chatDarkBg : assets.chatLightBg}
         style={StyleSheet.absoluteFillObject}
       />
-      <FlatList
+      <Animated.FlatList
         keyboardShouldPersistTaps="handled"
         scrollIndicatorInsets={{left: 0}}
+        ref={flatListRef}
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {y: yProgress}}}],
+          {
+            useNativeDriver: true,
+          },
+        )}
         bounces={false}
         data={messages}
         keyExtractor={item => item._id}
         renderItem={({item, index}) => (
           <MessageBlock {...item} lastMessageFrom={messages?.[index + 1]?.by} />
         )}
+        stickyHeaderIndices={[0]}
+        invertStickyHeaders={false}
         ListHeaderComponent={
           <ChatInput
             value={input}

@@ -4,7 +4,7 @@ import {getMessages, sendMessage} from '../api/chat';
 import {useData} from '../providers/DataProvider';
 let timeout;
 let firstTyped = true;
-export const useMessages = (chat, socketController) => {
+export const useMessages = (chat, socketController, scrollToEnd) => {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [msgType, setMsgType] = useState('text');
@@ -46,8 +46,9 @@ export const useMessages = (chat, socketController) => {
     if (!message) return;
     setInput('');
     setMedia(null);
+    scrollToEnd();
     return message;
-  }, [chat, msgType, input, socketController, media]);
+  }, [chat, msgType, input, socketController, media, scrollToEnd]);
 
   useEffect(() => {
     if (chat?._id) {
@@ -62,7 +63,6 @@ export const useMessages = (chat, socketController) => {
       socketController.subscribe(
         'newMessage',
         ({message, chat: returnedChat}) => {
-          console.log('chat');
           const chatIndex = chats.findIndex(
             ({_id}) => _id === returnedChat._id,
           );
