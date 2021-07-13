@@ -9,4 +9,18 @@ export const dateToFromNowDaily = myDate =>
     sameDay: 'HH:mm',
     nextDay: '[Tomorrow]',
     lastWeek: 'D.M.YYYY',
+    sameElse: 'D.M.YYYY',
   });
+
+export const dateToFromNowToChat = myDate =>
+  moment(myDate).calendar(null, {
+    lastDay: '[Yesterday] ',
+    sameDay: '[Today]',
+    nextDay: '[Tomorrow]',
+    nextWeek: 'd in MMMM YYYY',
+    lastWeek: 'd in MMMM YYYY',
+    sameElse: 'd in MMMM YYYY',
+  });
+
+export const isDifferentDay = (day1, day2) =>
+  !moment(day1).isSame(moment(day2), 'day');

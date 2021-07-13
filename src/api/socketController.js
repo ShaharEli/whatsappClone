@@ -14,19 +14,25 @@ export class SocketController {
   }
 
   async initListeners() {
+    if (!this.socket) return;
     this.socket.on('connect_error', this.onConnectionError);
     this.socket.on('type', this.onType);
   }
 
   subscribe(event, cb) {
+    if (!this.socket) return;
+
     this.socket.on(event, cb);
   }
 
   unsubscribe(event) {
+    if (!this.socket) return;
+
     this.socket.off(event);
   }
 
   emit(event, data = {}, cb = () => {}) {
+    if (!this.socket) return;
     this.socket.emit(event, data, cb);
   }
 

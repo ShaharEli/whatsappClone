@@ -1,4 +1,5 @@
 import {useHeaderHeight} from '@react-navigation/stack';
+import moment from 'moment';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
@@ -6,9 +7,12 @@ import {
   KeyboardAvoidingView,
   Animated,
   Image,
+  View,
+  Text,
 } from 'react-native';
 import {createChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
+import DateBlock from '../../components/DateBlock';
 import Loading from '../../components/Loading';
 import MessageBlock from '../../components/MessageBlock';
 import ScrollToBottomBubble from '../../components/ScrollToBottomBubble';
@@ -16,7 +20,12 @@ import {useMessages} from '../../hooks';
 import {useAuth} from '../../providers/AuthProvider';
 import {useData} from '../../providers/DataProvider';
 import {useTheme} from '../../providers/StyleProvider';
-import {assets, checkIfChatExists, MAX_HEIGHT} from '../../utils';
+import {
+  assets,
+  checkIfChatExists,
+  isDifferentDay,
+  MAX_HEIGHT,
+} from '../../utils';
 
 export default function Chat({route}) {
   const [chat, setChat] = useState(null);
@@ -76,7 +85,13 @@ export default function Chat({route}) {
       />
       <Animated.FlatList
         keyboardShouldPersistTaps="handled"
+        ListFooterComponent={
+          messages ? (
+            <DateBlock value={messages?.[messages.length - 1]?.createdAt} />
+          ) : null
+        }
         scrollEventThrottle={16}
+        contentContainerStyle={styles.flatListContainer}
         scrollIndicatorInsets={{right: 0}}
         ref={flatListRef}
         onScroll={Animated.event(
@@ -90,14 +105,26 @@ export default function Chat({route}) {
         data={messages}
         keyExtractor={item => item._id}
         renderItem={({item, index}) => (
-          <MessageBlock {...item} lastMessageFrom={messages?.[index + 1]?.by} />
+          <>
+            {!messages?.[index - 1] ||
+              (isDifferentDay(
+                item.createdAt,
+                messages[index - 1].createdAt,
+              ) && <DateBlock value={messages[index - 1]?.createdAt} />)}
+            <MessageBlock
+              {...item}
+              lastMessageFrom={messages?.[index + 1]?.by}
+            />
+          </>
         )}
         inverted
       />
-      <ScrollToBottomBubble yProgress={yProgress} scrollToEnd={scrollToEnd} />
+      <ScrollToBottomBubble {...{yProgress, scrollToEnd}} />
       <ChatInput value={input} onChangeText={onChangeText} onSubmit={sendMsg} />
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  flatListContainer: {paddingTop: 10, paddingBottom: 50},
+});

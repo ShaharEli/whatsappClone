@@ -18,7 +18,7 @@ export default function ScrollToBottomBubble({yProgress, scrollToEnd}) {
   return (
     <AnimatedTouchableOpacity
       onPress={scrollToEnd}
-      activeOpacity={0.6}
+      activeOpacity={0.7}
       style={[
         styles.container(colors, rootStyles),
         {transform: [{scale: prog}], opacity: prog},
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   container: (colors, rootStyles) => ({
     position: 'absolute',
     bottom: 150, //TODO:move to consts
-    left: 10,
+    left: 15,
     zIndex: 1000,
     width: 30,
     height: 30,
