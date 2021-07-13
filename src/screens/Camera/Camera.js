@@ -8,7 +8,7 @@ import {logger} from '../../utils';
 
 export default function Camera({navigation}) {
   const navigateToChat = useCallback(
-    () => navigation.navigate('ChatsStack'),
+    () => navigation.navigate('Chats'),
     [navigation],
   );
   const {rootStyles} = useTheme();

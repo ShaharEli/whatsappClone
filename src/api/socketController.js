@@ -21,7 +21,6 @@ export class SocketController {
 
   subscribe(event, cb) {
     if (!this.socket) return;
-
     this.socket.on(event, cb);
   }
 

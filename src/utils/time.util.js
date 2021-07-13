@@ -31,10 +31,10 @@ export const isDifferentDay = (day1, day2) =>
 export const calcLastConnected = date =>
   LAST_CONNECTED_START +
   moment(date).calendar(null, {
-    lastDay: `[Yesterday at] HH:mm`,
-    sameDay: `[Today at] HH:mm`,
-    nextDay: `[Yesterday at] HH:mm`,
-    nextWeek: `MM dd, YYYY`,
-    lastWeek: `MM dd, YYYY`,
-    sameElse: `MM dd, YYYY`,
+    lastDay: '[Yesterday at] HH:mm',
+    sameDay: '[Today at] HH:mm',
+    nextDay: '[Yesterday at] HH:mm',
+    nextWeek: 'MM dd, YYYY',
+    lastWeek: 'MM dd, YYYY',
+    sameElse: 'MM dd, YYYY',
   });

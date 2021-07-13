@@ -1,3 +1,4 @@
+import {Platform} from 'react-native';
 import Snackbar from 'react-native-snackbar';
 import {logger} from '../utils';
 import {getItem, setItem} from '../utils/storage.util';
@@ -7,6 +8,25 @@ const getRefreshOrThrow = async () => {
   const refreshToken = await getItem('refreshToken');
   if (!refreshToken) throw new Error('no refresh token found');
   return refreshToken;
+};
+
+export const logErrorToService = async (error, info) => {
+  try {
+    let prevUser = await getItem('currUser');
+    if (prevUser) {
+      prevUser = JSON.parse(prevUser);
+    }
+    const payload = {
+      platform: Platform.OS,
+      error,
+      info,
+      user: prevUser ? prevUser._id : null,
+    };
+    const {created} = await publicFetch('/auth/error', 'POST', payload);
+    return created;
+  } catch {
+    return false;
+  }
 };
 
 export const getAccessToken = async () => {
@@ -27,6 +47,7 @@ export const loginByPass = async (phone, password) => {
     );
     await setItem('accessToken', accessToken);
     await setItem('refreshToken', refreshToken);
+    await setItem('currUser', user);
     return user;
   } catch ({error}) {
     Snackbar.show({
@@ -47,6 +68,7 @@ export const register = async payload => {
     );
     await setItem('accessToken', accessToken);
     await setItem('refreshToken', refreshToken);
+    await setItem('currUser', user);
     return user;
   } catch ({error}) {
     Snackbar.show({
@@ -67,6 +89,7 @@ export const loginWithToken = async () => {
       {refreshToken},
     );
     await setItem('accessToken', accessToken);
+    await setItem('currUser', user);
     return user;
   } catch ({message}) {
     // logger.warn(message); //TODO uncomment

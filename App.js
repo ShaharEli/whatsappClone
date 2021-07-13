@@ -6,6 +6,7 @@ import Routes from './src/routes';
 import './src/styles/loadFonts.js';
 import {LogBox} from 'react-native';
 import {LOGS_TO_IGNORE} from './src/utils';
+import ErrorBoundary from './src/screens/ErrorBoundry';
 
 LogBox.ignoreLogs(LOGS_TO_IGNORE);
 
@@ -13,7 +14,9 @@ const App = () => {
   return (
     <AuthProvider>
       <StyleProvider>
-        <Routes />
+        <ErrorBoundary>
+          <Routes />
+        </ErrorBoundary>
       </StyleProvider>
     </AuthProvider>
   );

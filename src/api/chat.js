@@ -5,8 +5,6 @@ import {getItem, setItem} from '../utils/storage.util';
 import securedFetch from './privateFetch';
 const BASE = '/chat';
 
-export const getChatFromContact = async ({_id, type}) => {};
-
 export const getMessages = async chatId => {
   try {
     const messages = await securedFetch(`${BASE}/messages/${chatId}`);
@@ -38,6 +36,18 @@ export const getAllChats = async () => {
   try {
     const {chats} = await securedFetch(`${BASE}/all-chats`);
     return chats;
+  } catch ({error}) {
+    logger.error(error);
+    return false;
+  }
+};
+
+export const getUserActiveState = async userId => {
+  try {
+    const {isActive, lastConnected} = await securedFetch(
+      `${BASE}/get-user-active-state/${userId}`,
+    );
+    return {isActive, lastConnected};
   } catch ({error}) {
     logger.error(error);
     return false;

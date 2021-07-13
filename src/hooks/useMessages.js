@@ -1,7 +1,8 @@
 import {useNavigation} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import {useCallback} from 'react';
-import {getMessages, sendMessage} from '../api/chat';
+import {getMessages, getUserActiveState, sendMessage} from '../api/chat';
+import {useAuth} from '../providers/AuthProvider';
 import {useData} from '../providers/DataProvider';
 import {changeConnectedState} from '../utils';
 
@@ -17,6 +18,8 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
   const [media, setMedia] = useState(null);
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(false);
+
+  const {user} = useAuth();
   const [loading, setLoading] = useState(true);
 
   const {setChats, chats} = useData();
@@ -69,6 +72,21 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
       });
       socketController.unsubscribe('newMessage');
       if (chat.type === 'private') {
+        (async () => {
+          const {_id: otherUserId} = chat.participants.find(
+            ({_id}) => _id !== user._id,
+          );
+          const userOnlineState = await getUserActiveState(otherUserId);
+          if (userOnlineState) {
+            navigation.setParams(userOnlineState);
+            changeConnectedState(
+              setChats,
+              chat._id,
+              otherUserId,
+              userOnlineState.isActive ? null : userOnlineState.lastConnected,
+            );
+          }
+        })();
         socketController.subscribe('socketConnected', ({user}) => {
           if (isUserInTheChat(user, chat)) {
             navigation.setParams({isActive: true});
