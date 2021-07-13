@@ -1,15 +1,18 @@
 import moment from 'moment';
 export const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const DAY_IN_CHAT = 'd in MMMM YYYY';
+const DAY_IN_CHATS = 'D.M.YYYY';
+const LAST_CONNECTED_START = 'last seen ';
 
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 export const dateToFromNowDaily = myDate =>
   moment(myDate).calendar(null, {
     lastDay: '[Yesterday] ',
-    nextWeek: 'D.M.YYYY',
+    nextWeek: DAY_IN_CHATS,
     sameDay: 'HH:mm',
     nextDay: '[Tomorrow]',
-    lastWeek: 'D.M.YYYY',
-    sameElse: 'D.M.YYYY',
+    lastWeek: DAY_IN_CHATS,
+    sameElse: DAY_IN_CHATS,
   });
 
 export const dateToFromNowToChat = myDate =>
@@ -17,10 +20,21 @@ export const dateToFromNowToChat = myDate =>
     lastDay: '[Yesterday] ',
     sameDay: '[Today]',
     nextDay: '[Tomorrow]',
-    nextWeek: 'd in MMMM YYYY',
-    lastWeek: 'd in MMMM YYYY',
-    sameElse: 'd in MMMM YYYY',
+    nextWeek: DAY_IN_CHAT,
+    lastWeek: DAY_IN_CHAT,
+    sameElse: DAY_IN_CHAT,
   });
 
 export const isDifferentDay = (day1, day2) =>
   !moment(day1).isSame(moment(day2), 'day');
+
+export const calcLastConnected = date =>
+  LAST_CONNECTED_START +
+  moment(date).calendar(null, {
+    lastDay: `[Yesterday at] HH:mm`,
+    sameDay: `[Today at] HH:mm`,
+    nextDay: `[Yesterday at] HH:mm`,
+    nextWeek: `MM dd, YYYY`,
+    lastWeek: `MM dd, YYYY`,
+    sameElse: `MM dd, YYYY`,
+  });

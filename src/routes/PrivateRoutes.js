@@ -13,6 +13,7 @@ import {
   CONTACTS_OPTIONS,
   getActiveRouteState,
   isIphoneWithNotch,
+  calcLastConnected,
 } from '../utils';
 import SettingsMenu from '../components/SettingsMenu';
 import NewGroup from '../screens/NewGroup/NewGroup';
@@ -151,7 +152,7 @@ export default function PrivateRoutes() {
                   </Text>
                   {(isActive || lastConnected) && (
                     <Text style={styles.headerRightSmall(colors)}>
-                      {isActive ? 'online' : lastConnected}
+                      {isActive ? 'online' : calcLastConnected(lastConnected)}
                     </Text>
                   )}
                 </View>
