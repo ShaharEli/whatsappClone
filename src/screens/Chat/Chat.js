@@ -23,11 +23,12 @@ import {useTheme} from '../../providers/StyleProvider';
 import {
   assets,
   checkIfChatExists,
+  getChatDataFormatted,
   isDifferentDay,
   MAX_HEIGHT,
 } from '../../utils';
 
-export default function Chat({route}) {
+export default function Chat({route, navigation}) {
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
   const {chats, setChats, loadingChats, chatsError, socketController} =
@@ -62,13 +63,33 @@ export default function Chat({route}) {
     } else {
       // toDO change according to route
     }
+
     setLoading(false);
   };
+
   useEffect(() => {
     if (loadingChats || chatsError) return;
     fetchChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.params, loadingChats]);
+
+  useEffect(() => {
+    if (chat?.type === 'private') {
+      const {participants} = chat;
+      const {isActive, lastConnected} = getChatDataFormatted(
+        {
+          participants,
+        },
+        user._id,
+        true,
+      );
+      navigation.setParams({
+        isActive,
+        lastConnected,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat]);
   const headerHeight = useHeaderHeight();
 
   if (loading) return <Loading />;

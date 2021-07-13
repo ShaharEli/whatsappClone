@@ -1,12 +1,21 @@
 import {assets} from './assets.util';
 
-export const getNameAndImageFromChat = (
+export const getChatDataFormatted = (
   {type, image, participants, name},
   userId,
+  returnJustActiveState,
 ) => {
-  let chatName, chatImage, otherParticipant;
-  if (type === 'private')
+  let chatName, chatImage, otherParticipant, isActive, lastConnected;
+  if (type === 'private' || returnJustActiveState) {
     otherParticipant = participants.filter(({_id}) => _id !== userId)[0];
+    isActive = otherParticipant.isActive;
+    lastConnected = otherParticipant.lastConnected;
+  }
+  if (returnJustActiveState)
+    return {
+      isActive,
+      lastConnected,
+    };
   if (name) chatName = name;
   else {
     chatName = otherParticipant.firstName + ' ' + otherParticipant.lastName;
@@ -16,7 +25,7 @@ export const getNameAndImageFromChat = (
     if (otherParticipant?.avatar) chatImage = {uri: otherParticipant?.avatar};
     else chatImage = assets.profilePlaceholder;
   }
-  return {chatImage, chatName};
+  return {chatImage, chatName, isActive, lastConnected};
 };
 
 export const checkIfChatExists = (chats, {_id: ourId}, {_id: contactID}) => {
@@ -37,4 +46,28 @@ export const checkIfChatExists = (chats, {_id: ourId}, {_id: contactID}) => {
     }
   }
   return false;
+};
+
+export const changeConnectedState = (setChats, chatID, user, lastConnected) => {
+  setChats(prev => {
+    const chatIndex = prev.findIndex(({_id}) => _id === chatID);
+    return prev.map((chat, index) =>
+      index === chatIndex
+        ? {
+            ...chat,
+            participants: chat.participants.map(p =>
+              p._id === user
+                ? {
+                    ...p,
+                    lastConnected: lastConnected
+                      ? lastConnected
+                      : p.lastConnected,
+                    isActive: !lastConnected,
+                  }
+                : p,
+            ),
+          }
+        : chat,
+    );
+  });
 };

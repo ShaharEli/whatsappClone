@@ -1,9 +1,15 @@
+import {useNavigation} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import {useCallback} from 'react';
 import {getMessages, sendMessage} from '../api/chat';
 import {useData} from '../providers/DataProvider';
+import {changeConnectedState} from '../utils';
+
 let timeout;
 let firstTyped = true;
+const isUserInTheChat = (user, {participants}) =>
+  participants.find(({_id}) => _id === user);
+
 export const useMessages = (chat, socketController, scrollToEnd) => {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -12,7 +18,9 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const {setChats, chats} = useData();
+  const navigation = useNavigation();
 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
@@ -60,6 +68,23 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
         );
       });
       socketController.unsubscribe('newMessage');
+      if (chat.type === 'private') {
+        socketController.subscribe('socketConnected', ({user}) => {
+          if (isUserInTheChat(user, chat)) {
+            navigation.setParams({isActive: true});
+          }
+          changeConnectedState(setChats, chat._id, user);
+        });
+        socketController.subscribe(
+          'socketDisconnected',
+          ({user, lastConnected}) => {
+            if (isUserInTheChat(user, chat)) {
+              navigation.setParams({isActive: false, lastConnected});
+            }
+            changeConnectedState(setChats, chat._id, user, lastConnected);
+          },
+        );
+      }
       socketController.subscribe(
         'newMessage',
         ({message, chat: returnedChat}) => {
@@ -115,6 +140,8 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
         socketController.emit('type', {typing: false, chatId: chat?._id});
         socketController.leaveChat();
         socketController.unsubscribe('newMessage');
+        socketController.unsubscribe('socketDisconnected');
+        socketController.unsubscribe('socketConnected');
         clearTimeout(timeout);
       }
     };

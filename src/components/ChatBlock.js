@@ -4,7 +4,7 @@ import {useAuth} from '../providers/AuthProvider';
 import {useTheme} from '../providers/StyleProvider';
 import {
   dateToFromNowDaily,
-  getNameAndImageFromChat,
+  getChatDataFormatted,
   MAX_WIDTH,
   pickRandomListValue,
 } from '../utils';
@@ -20,11 +20,12 @@ export default function ChatBlock({chat, navigation}) {
     usersTyping = [],
     unreadMessages,
   } = chat;
+
   const {user} = useAuth();
   const {rootStyles, colors} = useTheme();
   const [currentlyType, setCurrentlyType] = useState({});
 
-  const {chatImage, chatName} = getNameAndImageFromChat(
+  const {chatImage, chatName, isActive, lastConnected} = getChatDataFormatted(
     {
       type,
       image,
@@ -41,7 +42,7 @@ export default function ChatBlock({chat, navigation}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usersTyping.length]);
 
-  const getType = () => {
+  const getType = useCallback(() => {
     setCurrentlyType(prev => {
       if (usersTyping.length === 0) {
         return {};
@@ -54,7 +55,7 @@ export default function ChatBlock({chat, navigation}) {
         return usersTyping[0];
       }
     });
-  };
+  }, [usersTyping]);
 
   const renderContent = useCallback(() => {
     switch (lastMessage.type) {
@@ -100,6 +101,8 @@ export default function ChatBlock({chat, navigation}) {
           avatar: chatImage,
           name: chatName,
           type,
+          isActive,
+          lastConnected,
         })
       }
       style={[

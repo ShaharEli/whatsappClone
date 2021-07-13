@@ -115,7 +115,7 @@ export default function PrivateRoutes() {
         name="Chat"
         component={Chat}
         options={({navigation, route}) => {
-          const {avatar, name, _id} = route.params;
+          const {avatar, name, _id, lastConnected, isActive} = route.params;
           return {
             ...baseHeader(colors),
             headerRight: () => (
@@ -136,21 +136,25 @@ export default function PrivateRoutes() {
                   style={rootStyles.mx3}
                 />
                 <Image source={avatar} style={rootStyles.customAvatar(30)} />
-                <Text
-                  onPress={() =>
-                    navigation.navigate('ProfileView', {
-                      avatar,
-                      name,
-                      _id,
-                    })
-                  }
-                  style={[
-                    rootStyles.ms4,
-                    styles.headerRight(colors),
-                    styles.clickableTitle,
-                  ]}>
-                  {name}
-                </Text>
+
+                <View style={rootStyles.ms4}>
+                  <Text
+                    onPress={() =>
+                      navigation.navigate('ProfileView', {
+                        avatar,
+                        name,
+                        _id,
+                      })
+                    }
+                    style={[styles.headerRight(colors), styles.clickableTitle]}>
+                    {name}
+                  </Text>
+                  {(isActive || lastConnected) && (
+                    <Text style={styles.headerRightSmall(colors)}>
+                      {isActive ? 'online' : lastConnected}
+                    </Text>
+                  )}
+                </View>
               </View>
             ),
           };
