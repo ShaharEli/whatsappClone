@@ -42,6 +42,7 @@ export default function Chat({route, navigation}) {
     chat,
     socketController,
     scrollToEnd,
+    navigation,
   );
 
   const flatListRef = useRef();

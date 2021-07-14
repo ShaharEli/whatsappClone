@@ -1,18 +1,21 @@
-import {useNavigation} from '@react-navigation/core';
-import React, {useEffect, useState} from 'react';
-import {useCallback} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {Platform} from 'react-native';
 import {getMessages, getUserActiveState, sendMessage} from '../api/chat';
 import {useAuth} from '../providers/AuthProvider';
 import {useData} from '../providers/DataProvider';
-import {changeConnectedState} from '../utils';
+import {changeConnectedState, handleNewMessage, handleSeen} from '../utils';
 
 let timeout;
 let firstTyped = true;
 const isUserInTheChat = (user, {participants}) =>
   participants.find(({_id}) => _id === user);
 
-export const useMessages = (chat, socketController, scrollToEnd) => {
+export const useMessages = (
+  chat,
+  socketController,
+  scrollToEnd,
+  navigation,
+) => {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [msgType, setMsgType] = useState('text');
@@ -25,7 +28,6 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
   const [loading, setLoading] = useState(true);
 
   const {setChats, chats} = useData();
-  const navigation = useNavigation();
 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
@@ -91,9 +93,8 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
           index === chatIndex ? {...chat, unreadMessages: 0} : chat,
         );
       });
-      socketController.unsubscribe('newMessage');
-      socketController.unsubscribe('seen');
-
+      socketController.unsubscribe(['newMessage', 'seen']);
+      //
       if (chat.type === 'private') {
         (async () => {
           const {_id: otherUserId} = chat.participants.find(
@@ -111,38 +112,9 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
           }
         })();
 
-        socketController.subscribe('seen', ({userId, chatId}) => {
-          const inTheSameChat = chat?._id === chatId;
-          if (inTheSameChat) {
-            setMessages(prev =>
-              prev.map(m => {
-                return {
-                  ...m,
-                  seenBy: [...new Set([...m.seenBy, userId, user?._id])],
-                };
-              }),
-            );
-          }
-
-          setChats(prev => {
-            const chatIndex = prev.findIndex(({_id}) => _id === chatId);
-            if (chatIndex === -1) return prev;
-            return prev.map((c, i) => {
-              if (i !== chatIndex) return c;
-              const {lastMessage} = c;
-
-              if (!(lastMessage?.by || lastMessage?.by?._id) === user._id)
-                return c;
-              return {
-                ...c,
-                lastMessage: {
-                  ...c.lastMessage,
-                  seenBy: [...new Set([...c.lastMessage.seenBy, userId])],
-                },
-              };
-            });
-          });
-        });
+        socketController.subscribe('seen', ({userId, chatId}) =>
+          handleSeen({userId, chatId}, setChats, user, chat, setMessages),
+        );
         socketController.subscribe('socketConnected', ({user}) => {
           if (isUserInTheChat(user, chat)) {
             navigation.setParams({isActive: true});
@@ -161,44 +133,16 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
       }
       socketController.subscribe(
         'newMessage',
-        ({message, chat: returnedChat}) => {
-          const chatIndex = chats.findIndex(
-            ({_id}) => _id === returnedChat._id,
-          );
-          const inTheSameChat = chat._id === returnedChat._id;
-          if (inTheSameChat) {
-            setMessages(prev => [message, ...prev]);
-            socketController.emit('seen', {
-              chatId: returnedChat._id,
-              participants: returnedChat.participants.map(
-                ({socketId}) => socketId,
-              ),
-            });
-          }
-          //TODO notification
-          if (chatIndex === -1) {
-            setChats(prev => [
-              ...prev,
-              {...returnedChat, unreadMessages: 1, lastMessage: message},
-            ]);
-          } else {
-            setChats(prev =>
-              prev.map((chat, index) => {
-                if (index !== chatIndex) return chat;
-                const {unreadMessages = 0} = chat;
-                return {
-                  ...chat,
-                  unreadMessages: inTheSameChat
-                    ? unreadMessages
-                    : unreadMessages + 1,
-                  lastMessage: inTheSameChat
-                    ? {...message, seenBy: [...message.seenBy, user._id]}
-                    : message,
-                };
-              }),
-            );
-          }
-        },
+        ({message, chat: returnedChat}) =>
+          handleNewMessage(
+            {message, returnedChat},
+            chats,
+            chat,
+            setMessages,
+            socketController,
+            setChats,
+            user,
+          ),
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -221,10 +165,13 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
       if (chat?._id) {
         socketController.emit('type', {typing: false, chatId: chat?._id});
         socketController.leaveChat();
-        socketController.unsubscribe('newMessage');
-        socketController.unsubscribe('socketDisconnected');
-        socketController.unsubscribe('socketConnected');
-        socketController.unsubscribe('seen');
+        socketController.unsubscribe([
+          //   'newMessage',
+          'socketDisconnected',
+          'socketConnected',
+          //   'seen',
+        ]);
+
         clearTimeout(timeout);
       }
     };

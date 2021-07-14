@@ -21,12 +21,14 @@ export class SocketController {
 
   subscribe(event, cb) {
     if (!this.socket) return;
+    this.unsubscribe(event);
     this.socket.on(event, cb);
   }
 
   unsubscribe(event) {
     if (!this.socket) return;
-    this.socket.off(event);
+    if (Array.isArray(event)) event.forEach(e => this.socket.off(e));
+    else this.socket.off(event);
   }
 
   emit(event, data = {}, cb = () => {}) {
