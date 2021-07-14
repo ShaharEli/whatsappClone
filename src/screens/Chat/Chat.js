@@ -38,7 +38,7 @@ export default function Chat({route, navigation}) {
   const scrollToEnd = () => {
     flatListRef?.current?.scrollToOffset({y: 0});
   };
-  const {onChangeText, input, sendMsg, messages} = useMessages(
+  const {onChangeText, input, sendMsg, messages, isSending} = useMessages(
     chat,
     socketController,
     scrollToEnd,
@@ -135,6 +135,7 @@ export default function Chat({route, navigation}) {
               ) && <DateBlock value={messages[index - 1]?.createdAt} />)}
             <MessageBlock
               {...item}
+              participants={chat.participants}
               lastMessageFrom={messages?.[index + 1]?.by}
             />
           </>
@@ -142,7 +143,12 @@ export default function Chat({route, navigation}) {
         inverted
       />
       <ScrollToBottomBubble {...{yProgress, scrollToEnd}} />
-      <ChatInput value={input} onChangeText={onChangeText} onSubmit={sendMsg} />
+      <ChatInput
+        value={input}
+        disabled={isSending}
+        onChangeText={onChangeText}
+        onSubmit={sendMsg}
+      />
     </KeyboardAvoidingView>
   );
 }

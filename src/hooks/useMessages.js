@@ -1,6 +1,7 @@
 import {useNavigation} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import {useCallback} from 'react';
+import {Platform} from 'react-native';
 import {getMessages, getUserActiveState, sendMessage} from '../api/chat';
 import {useAuth} from '../providers/AuthProvider';
 import {useData} from '../providers/DataProvider';
@@ -18,6 +19,7 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
   const [media, setMedia] = useState(null);
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const {user} = useAuth();
   const [loading, setLoading] = useState(true);
@@ -59,6 +61,7 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
   const sendMsg = useCallback(async () => {
     const chatId = chat?._id;
     if (!chatId) return;
+    setIsSending(true);
     const message = await sendMessage(
       {
         chatId,
@@ -68,6 +71,7 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
       },
       socketController,
     );
+    setIsSending(false);
     if (!message) return;
     setInput('');
     setMedia(null);
@@ -77,7 +81,10 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
 
   useEffect(() => {
     if (chat?._id) {
-      socketController.joinChat(chat._id);
+      socketController.joinChat(
+        chat._id,
+        chat.participants.map(({socketId}) => socketId),
+      );
       setChats(prev => {
         const chatIndex = prev.findIndex(({_id}) => _id === chat._id);
         return prev.map((chat, index) =>
@@ -85,6 +92,8 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
         );
       });
       socketController.unsubscribe('newMessage');
+      socketController.unsubscribe('seen');
+
       if (chat.type === 'private') {
         (async () => {
           const {_id: otherUserId} = chat.participants.find(
@@ -101,6 +110,39 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
             );
           }
         })();
+
+        socketController.subscribe('seen', ({userId, chatId}) => {
+          const inTheSameChat = chat?._id === chatId;
+          if (inTheSameChat) {
+            setMessages(prev =>
+              prev.map(m => {
+                return {
+                  ...m,
+                  seenBy: [...new Set([...m.seenBy, userId, user?._id])],
+                };
+              }),
+            );
+          }
+
+          setChats(prev => {
+            const chatIndex = prev.findIndex(({_id}) => _id === chatId);
+            if (chatIndex === -1) return prev;
+            return prev.map((c, i) => {
+              if (i !== chatIndex) return c;
+              const {lastMessage} = c;
+
+              if (!(lastMessage?.by || lastMessage?.by?._id) === user._id)
+                return c;
+              return {
+                ...c,
+                lastMessage: {
+                  ...c.lastMessage,
+                  seenBy: [...new Set([...c.lastMessage.seenBy, userId])],
+                },
+              };
+            });
+          });
+        });
         socketController.subscribe('socketConnected', ({user}) => {
           if (isUserInTheChat(user, chat)) {
             navigation.setParams({isActive: true});
@@ -126,6 +168,12 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
           const inTheSameChat = chat._id === returnedChat._id;
           if (inTheSameChat) {
             setMessages(prev => [message, ...prev]);
+            socketController.emit('seen', {
+              chatId: returnedChat._id,
+              participants: returnedChat.participants.map(
+                ({socketId}) => socketId,
+              ),
+            });
           }
           //TODO notification
           if (chatIndex === -1) {
@@ -143,7 +191,9 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
                   unreadMessages: inTheSameChat
                     ? unreadMessages
                     : unreadMessages + 1,
-                  lastMessage: message,
+                  lastMessage: inTheSameChat
+                    ? {...message, seenBy: [...message.seenBy, user._id]}
+                    : message,
                 };
               }),
             );
@@ -174,6 +224,7 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
         socketController.unsubscribe('newMessage');
         socketController.unsubscribe('socketDisconnected');
         socketController.unsubscribe('socketConnected');
+        socketController.unsubscribe('seen');
         clearTimeout(timeout);
       }
     };
@@ -191,5 +242,6 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
     loadingMsgs: loading,
     errorMsgs: error,
     messages,
+    isSending,
   };
 };

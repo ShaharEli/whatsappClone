@@ -9,6 +9,7 @@ import {
   pickRandomListValue,
 } from '../utils';
 import Entypo from 'react-native-vector-icons/Entypo';
+import SeenIndicator from './SeenIndicator';
 
 export default function ChatBlock({chat, navigation}) {
   const {
@@ -57,30 +58,43 @@ export default function ChatBlock({chat, navigation}) {
     });
   }, [usersTyping]);
 
+  const ChatSeen = useCallback(() => {
+    return (
+      <SeenIndicator
+        participants={participants}
+        isFromMe={(lastMessage?.by?._id || lastMessage?.by) === user._id}
+        seenBy={lastMessage?.seenBy}
+      />
+    );
+  }, [participants, lastMessage, user]);
+
   const renderContent = useCallback(() => {
     switch (lastMessage.type) {
       case 'text':
         return (
-          <View>
+          <View style={rootStyles.flexRow}>
             <Text numberOfLines={1} style={styles.secondaryText(colors)}>
               {lastMessage.content}
             </Text>
+            <ChatSeen />
           </View>
         );
       case 'image':
         if (lastMessage.content) {
           return (
-            <View>
+            <View style={rootStyles.flexRow}>
               <Entypo name="images" size={30} color={colors.SECONDARY_FONT} />
               <Text numberOfLines={1} style={styles.secondaryText(colors)}>
                 {lastMessage.content}
               </Text>
+              <ChatSeen />
             </View>
           );
         } else {
           return (
             <View>
               <Entypo name="images" size={30} />
+              <ChatSeen />
             </View>
           );
         }
@@ -173,7 +187,7 @@ const styles = StyleSheet.create({
   }),
   secondaryText: colors => ({
     color: colors.GREY_LIGHT,
-    width: MAX_WIDTH - 150,
+    maxWidth: MAX_WIDTH - 150,
   }),
   typingText: colors => ({
     color: colors.GREEN_PRIMARY,

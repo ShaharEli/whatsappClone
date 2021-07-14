@@ -12,6 +12,7 @@ export default {
   GREEN_PASTEL: '#8bc249',
   PINK_PASTEL: '#e31d61',
   RED_PASTEL: '#d10102',
+  SEEN: '#067AFD',
   ORANGE_PASTEL: '#d10102',
   PURPLE: '#3b2ba4',
   WHITE_SMOKE: '#eeeeee',

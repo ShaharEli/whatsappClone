@@ -26,7 +26,6 @@ export class SocketController {
 
   unsubscribe(event) {
     if (!this.socket) return;
-
     this.socket.off(event);
   }
 
@@ -35,9 +34,9 @@ export class SocketController {
     this.socket.emit(event, data, cb);
   }
 
-  joinChat(chatId) {
+  joinChat(chatId, participants) {
     this.currentChat = chatId;
-    this.emit('joinedChat', {chatId: chatId});
+    this.emit('joinedChat', {chatId, participants});
   }
 
   leaveChat() {
@@ -53,8 +52,11 @@ export class SocketController {
     this.initListeners();
   }
 
-  async disconnect() {
-    await this.socket.disconnect();
+  disconnect() {
+    if (this.currentChat) {
+      this.leaveChat();
+    }
+    this.socket.disconnect();
     this.socket = null;
   }
 

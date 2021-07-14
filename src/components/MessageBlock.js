@@ -3,12 +3,15 @@ import React, {useMemo, useState} from 'react';
 import {StyleSheet, Text, View, TouchableHighlight} from 'react-native';
 import {useAuth} from '../providers/AuthProvider';
 import {useTheme} from '../providers/StyleProvider';
+import SeenIndicator from './SeenIndicator';
 
 export default function MessageBlock({
   content,
   by,
   lastMessageFrom,
   createdAt,
+  seenBy,
+  participants,
 }) {
   const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
@@ -32,6 +35,7 @@ export default function MessageBlock({
         <Text style={styles.time(colors)}>
           {moment(createdAt).format('HH:mm')}
         </Text>
+        <SeenIndicator {...{participants, isFromMe, seenBy}} />
         {(!lastMessageFrom || lastMessageFrom !== by) && (
           <View style={styles.arrow(colors, isFromMe, arrowColor)} />
         )}
