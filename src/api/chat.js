@@ -34,8 +34,8 @@ export const createChat = async (participants, type) => {
 
 export const getAllChats = async () => {
   try {
-    const {chats} = await securedFetch(`${BASE}/all-chats`);
-    return chats;
+    const {chats, unreadMessages} = await securedFetch(`${BASE}/all-chats`);
+    return chats.map((c, i) => ({...c, unreadMessages: unreadMessages[i]}));
   } catch ({error}) {
     logger.error(error);
     return false;
