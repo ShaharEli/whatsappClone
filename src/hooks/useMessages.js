@@ -42,6 +42,20 @@ export const useMessages = (chat, socketController, scrollToEnd) => {
     }, 1.5 * 1000);
   }, []);
 
+  useEffect(() => {
+    if (chat?.type === 'private') {
+      const currChat = chats.find(({_id}) => _id === chat?._id);
+      if (!currChat) return;
+      const {usersTyping = []} = currChat;
+      if (usersTyping.length) {
+        navigation.setParams({userTyping: true});
+      } else {
+        navigation.setParams({userTyping: false});
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat, chats]);
+
   const sendMsg = useCallback(async () => {
     const chatId = chat?._id;
     if (!chatId) return;

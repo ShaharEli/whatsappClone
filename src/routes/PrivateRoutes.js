@@ -116,7 +116,8 @@ export default function PrivateRoutes() {
         name="Chat"
         component={Chat}
         options={({navigation, route}) => {
-          const {avatar, name, _id, lastConnected, isActive} = route.params;
+          const {avatar, name, _id, lastConnected, isActive, userTyping} =
+            route.params;
           return {
             ...baseHeader(colors),
             headerRight: () => (
@@ -152,7 +153,11 @@ export default function PrivateRoutes() {
                   </Text>
                   {(isActive || lastConnected) && (
                     <Text style={styles.headerRightSmall(colors)}>
-                      {isActive ? 'online' : calcLastConnected(lastConnected)}
+                      {userTyping
+                        ? 'typing...'
+                        : isActive
+                        ? 'online'
+                        : calcLastConnected(lastConnected)}
                     </Text>
                   )}
                 </View>

@@ -90,6 +90,7 @@ export default function Chat({route, navigation}) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat]);
+
   const headerHeight = useHeaderHeight();
 
   if (loading) return <Loading />;
