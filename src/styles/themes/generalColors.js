@@ -19,6 +19,7 @@ export default {
   GREY_LIGHT: '#b6b6b6',
   GREY: '#444444',
   WHITE_TRANSPARENT: 'rgba(255,255,255,0.5)',
+  WHITE: 'white',
   BLACK_TRANSPARENT: 'rgba(0, 0, 0, 0.5)',
   RED_LIGHT: '#ff958e',
   PURPLE_BLUE: '#c3c0dd',

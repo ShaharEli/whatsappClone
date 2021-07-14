@@ -40,6 +40,7 @@ const baseHeader = colors => ({
     },
     shadowColor: 'transparent',
   },
+  gestureEnabled: false,
 });
 
 function TabNavigator() {
