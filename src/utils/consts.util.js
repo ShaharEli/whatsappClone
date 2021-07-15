@@ -26,7 +26,7 @@ export const FLOATING_BTN_SIZE = 70;
 export const LOGS_TO_IGNORE = [
   'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
   'If you want to use Reanimated 2 ',
-  ' Sending `onAnimatedValueUpdate` with no listeners registered',
+  'Sending `onAnimatedValueUpdate` with no listeners registered',
 ];
 
 export const CHAT_OPTIONS = [

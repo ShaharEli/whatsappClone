@@ -44,7 +44,7 @@ export default function MessageBlock({
       outputRange: [-20, 0, 0, 1],
     });
     return (
-      <RectButton onPress={this.close}>
+      <RectButton>
         <Animated.View
           style={[
             {

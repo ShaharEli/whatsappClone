@@ -1,15 +1,6 @@
 import {useHeaderHeight} from '@react-navigation/stack';
-import moment from 'moment';
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Animated,
-  Image,
-  View,
-  Text,
-} from 'react-native';
+import {StyleSheet, KeyboardAvoidingView, Animated, Image} from 'react-native';
 import {createChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
 import DateBlock from '../../components/DateBlock';
@@ -38,12 +29,8 @@ export default function Chat({route, navigation}) {
   const scrollToEnd = () => {
     flatListRef?.current?.scrollToOffset({y: 0});
   };
-  const {onChangeText, input, sendMsg, messages, isSending} = useMessages(
-    chat,
-    socketController,
-    scrollToEnd,
-    navigation,
-  );
+  const {onChangeText, input, sendMsg, messages, isSending, loadingMsgs} =
+    useMessages(chat, socketController, scrollToEnd, navigation);
 
   const flatListRef = useRef();
   const yProgress = useRef(new Animated.Value(0)).current;
@@ -62,7 +49,7 @@ export default function Chat({route, navigation}) {
         }
       }
     } else {
-      // toDO change according to route
+      // TODO change according to route
     }
 
     setLoading(false);
@@ -109,7 +96,7 @@ export default function Chat({route, navigation}) {
       <Animated.FlatList
         keyboardShouldPersistTaps="handled"
         ListFooterComponent={
-          messages ? (
+          messages.length ? (
             <DateBlock value={messages?.[messages.length - 1]?.createdAt} />
           ) : null
         }

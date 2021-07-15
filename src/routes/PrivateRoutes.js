@@ -1,5 +1,5 @@
-import React from 'react';
-import {StyleSheet, Text, View, Image} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {StyleSheet, Text, View, Image, TextInput} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Settings from '../screens/Settings/Settings';
@@ -14,6 +14,7 @@ import {
   getActiveRouteState,
   isIphoneWithNotch,
   calcLastConnected,
+  MAX_WIDTH,
 } from '../utils';
 import SettingsMenu from '../components/SettingsMenu';
 import NewGroup from '../screens/NewGroup/NewGroup';
@@ -109,7 +110,76 @@ export default function PrivateRoutes() {
         })}
       />
       <Stack.Screen name="Settings" component={Settings} />
-      <Stack.Screen name="NewGroup" component={NewGroup} />
+      <Stack.Screen
+        name="NewGroup"
+        component={NewGroup}
+        options={({navigation, route}) => {
+          const contactsNum = route?.params?.contactsNum;
+          const selectedContactsNum = route?.params?.selectedContactsNum;
+          const searching = route?.params?.searching;
+
+          return {
+            ...baseHeader(colors),
+            headerRight: () =>
+              searching ? (
+                <Ionicons
+                  name="arrow-forward"
+                  color={colors.INACTIVE_TINT}
+                  size={30}
+                  onPress={() => navigation.setParams({searching: false})}
+                  style={rootStyles.mx3}
+                />
+              ) : (
+                <SettingsMenu
+                  withSettings={false}
+                  onSearch={() => navigation.setParams({searching: true})}
+                  navigation={navigation}
+                />
+              ),
+            headerLeft: () =>
+              searching ? (
+                <View
+                  style={[
+                    rootStyles.flex1,
+                    rootStyles.px4,
+                    {width: MAX_WIDTH - 50}, //TODO move to consts
+                  ]}>
+                  <TextInput
+                    autoFocus={true}
+                    style={[rootStyles.flex1, rootStyles.font(colors)]}
+                    onChangeText={searchValue =>
+                      navigation.setParams({searchValue})
+                    }
+                  />
+                </View>
+              ) : (
+                <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
+                  <Ionicons
+                    name="arrow-back"
+                    color={colors.INACTIVE_TINT}
+                    size={30}
+                    onPress={() => navigation.goBack()}
+                    style={rootStyles.mx3}
+                  />
+                  <View>
+                    <Text style={[rootStyles.me2, styles.headerRight(colors)]}>
+                      New Group
+                    </Text>
+                    <Text
+                      onPress={() => navigation.goBack()}
+                      style={[rootStyles.me2, styles.headerRightSmall(colors)]}>
+                      {!contactsNum || !selectedContactsNum
+                        ? 'Add participants'
+                        : `${selectedContactsNum} ${
+                            selectedContactsNum > 1 ? 'contacts' : 'contact'
+                          } selected`}
+                    </Text>
+                  </View>
+                </View>
+              ),
+          };
+        }}
+      />
       <Stack.Screen name="Broadcast" component={Broadcast} />
       <Stack.Screen name="FavoriteMsgs" component={FavoriteMsgs} />
       <Stack.Screen name="ProfileView" component={ProfileView} />
