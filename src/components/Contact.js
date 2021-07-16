@@ -21,7 +21,13 @@ export default function Contact({
     <TouchableOpacity
       onPress={() =>
         onPress
-          ? onPress(!selected, {_id, firstName, avatar, status, lastName})
+          ? onPress(!selected, {
+              _id,
+              firstName,
+              avatar: avatar ? {uri: avatar} : assets.profilePlaceholder,
+              status,
+              lastName,
+            })
           : navigation.navigate('Chat', {
               _id,
               avatar: avatar ? {uri: avatar} : assets.profilePlaceholder,

@@ -15,7 +15,7 @@ import {RectButton} from 'react-native-gesture-handler';
 import {MAX_WIDTH} from '../utils';
 import Entypo from 'react-native-vector-icons/Entypo';
 
-export default function MessageBlock({
+function MessageBlock({
   content,
   by,
   lastMessageFrom,
@@ -98,6 +98,9 @@ export default function MessageBlock({
     </Swipeable>
   );
 }
+
+export default React.memo(MessageBlock);
+
 // TODO move to another file 👇
 
 const styles = StyleSheet.create({

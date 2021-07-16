@@ -26,6 +26,7 @@ import {useContacts} from '../hooks';
 import Chat from '../screens/Chat/Chat';
 import Chats from '../screens/Chats/Chats';
 import ProfileView from '../screens/ProfileView/ProfileView';
+import GroupMetaData from '../screens/GroupMetaData/GroupMetaData';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 const baseHeader = colors => ({
@@ -110,6 +111,33 @@ export default function PrivateRoutes() {
         })}
       />
       <Stack.Screen name="Settings" component={Settings} />
+      <Stack.Screen
+        name="GroupMetaData"
+        component={GroupMetaData}
+        options={({navigation}) => ({
+          ...baseHeader(colors),
+          headerLeft: () => (
+            <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
+              <Ionicons
+                name="arrow-back"
+                color={colors.INACTIVE_TINT}
+                size={30}
+                onPress={() => navigation.goBack()}
+                style={rootStyles.mx3}
+              />
+              <View>
+                <Text style={[rootStyles.me2, styles.headerRight(colors)]}>
+                  New Group
+                </Text>
+                <Text style={[rootStyles.me2, styles.headerRightSmall(colors)]}>
+                  Add data
+                </Text>
+              </View>
+            </View>
+          ),
+        })}
+      />
+
       <Stack.Screen
         name="NewGroup"
         component={NewGroup}

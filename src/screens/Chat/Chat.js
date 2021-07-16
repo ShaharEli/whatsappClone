@@ -59,7 +59,7 @@ export default function Chat({route, navigation}) {
     if (loadingChats || chatsError) return;
     fetchChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.params, loadingChats]);
+  }, [loadingChats]);
 
   useEffect(() => {
     if (chat?.type === 'private') {

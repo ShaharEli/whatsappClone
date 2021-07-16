@@ -60,7 +60,7 @@ export default function Contacts({route, navigation}) {
           }}
           refreshing={refreshing}
           data={[...CONTACTS_BASE_OPTIONS(colors, navigation), ...userContacts]}
-          keyExtractor={({_id}) => _id}
+          keyExtractor={({_id, id}) => (_id ? _id : id)}
           renderItem={({item: contact}) => (
             <Contact {...contact} navigation={navigation} />
           )}
