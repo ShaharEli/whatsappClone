@@ -17,4 +17,5 @@ export default {
   BG_COLOR: '#f7f7f8',
   SETTINGS_MENU: '#25303C',
   ANTI_COLOR: 'black',
+  LIGHT_BG: '#131619',
 };

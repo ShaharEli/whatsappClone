@@ -38,7 +38,9 @@ export const useMessages = (
   }, [chat]);
 
   const onChangeText = useCallback(text => {
-    setInput(text);
+    console.log(text);
+    if (text?.code) setInput(prev => prev + text.code);
+    else setInput(text);
     setTyping(true);
     clearTimeout(timeout);
     timeout = setTimeout(() => {

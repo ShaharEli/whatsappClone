@@ -18,4 +18,5 @@ export default {
   SECONDARY_FONT: 'black',
   ANTI_COLOR: 'white',
   SETTINGS_MENU: '#f4f4f7',
+  LIGHT_BG: '#131619', //TODO CHANGE
 };

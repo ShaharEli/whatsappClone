@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity as TO} from 'react-native';
 import {useTheme} from '../providers/StyleProvider';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {MAX_HEIGHT, MAX_WIDTH, SETTINGS_MENU_SIZE} from '../utils';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import {useFocusEffect, useIsFocused} from '@react-navigation/core';
 
 export default function SettingsMenu({
   navigation,
@@ -15,6 +16,11 @@ export default function SettingsMenu({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {rootStyles, colors} = useTheme();
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [isFocused]);
+
   return (
     <View style={rootStyles.mx3}>
       <View style={rootStyles.flexRow}>

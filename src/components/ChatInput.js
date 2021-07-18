@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
 import {useTheme} from '../providers/StyleProvider';
 import {MAX_WIDTH} from '../utils';
 import RecordBubble from './RecordBubble';
 import Entypo from 'react-native-vector-icons/Entypo';
+import EmojiKb from './EmojiKb';
 export default function ChatInput({onChangeText, value, onSubmit, disabled}) {
   const {rootStyles, colors} = useTheme();
+  const emojiKeyboardRef = useRef();
+
   return (
     <View
       style={[
@@ -30,17 +33,17 @@ export default function ChatInput({onChangeText, value, onSubmit, disabled}) {
           maxHeight={150}
           minHeight={50}
           value={value}
+          onFocus={() => emojiKeyboardRef?.current?.(false)}
           onChangeText={onChangeText}
           placeholder="Type message"
           style={styles.input(colors)}
           multiline
           placeholderTextColor={colors.SECONDARY_FONT}
         />
-        <Entypo
-          name="emoji-happy"
-          color={colors.SECONDARY_FONT}
-          size={25}
+        <EmojiKb
+          onChangeText={onChangeText}
           style={styles.flexStart}
+          cbHook={emojiKeyboardRef}
         />
       </View>
     </View>

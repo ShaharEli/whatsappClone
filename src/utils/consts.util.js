@@ -27,6 +27,7 @@ export const LOGS_TO_IGNORE = [
   'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
   'If you want to use Reanimated 2 ',
   'Sending `onAnimatedValueUpdate` with no listeners registered',
+  '%s: Calling `getNode()` on the ref of an Animated component is no longer necessary.',
   'RCTBridge required dispatch_sync to load RCTDevLoadingView. This may lead to deadlocks',
 ];
 
