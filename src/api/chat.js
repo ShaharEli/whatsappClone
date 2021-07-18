@@ -87,3 +87,13 @@ export const sendMessage = async ({message, type, chatId, media}) => {
     return false;
   }
 };
+
+export const getChat = async id => {
+  try {
+    const chat = await securedFetch(`${BASE}/chat/${id}`);
+    return chat;
+  } catch ({error}) {
+    logger.error(error);
+    return false;
+  }
+};

@@ -27,7 +27,10 @@ function MessageBlock({
 }) {
   const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
-  const isFromMe = useMemo(() => user._id === by, [by, user]);
+  const isFromMe = useMemo(
+    () => user._id === (by?._id ? by._id : by),
+    [by, user],
+  );
   const [arrowColor, setArrowColor] = useState(null);
   const [isForwording, setIsForwording] = useState(false);
   const messageCreator = useMemo(
@@ -111,7 +114,10 @@ function MessageBlock({
               {moment(createdAt).format('HH:mm')}
             </Text>
             <SeenIndicator {...{participants, isFromMe, seenBy}} />
-            {(!lastMessageFrom || lastMessageFrom !== by) && (
+            {(!lastMessageFrom ||
+              (lastMessageFrom?._id
+                ? lastMessageFrom?._id
+                : lastMessageFrom) !== (by?._id ? by._id : by)) && (
               <View style={styles.arrow(colors, isFromMe, arrowColor)} />
             )}
           </View>

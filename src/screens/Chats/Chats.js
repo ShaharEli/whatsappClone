@@ -6,7 +6,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {Divider, ScreenWrapper} from '../../styles/styleComponents';
 import {useData} from '../../providers/DataProvider';
 import ChatBlock from '../../components/ChatBlock';
-import {handleNewMessageInChats, handleSeen, MAX_WIDTH} from '../../utils';
+import {
+  handleNewMessageInChats,
+  handleSeen,
+  MAX_WIDTH,
+  sortChat,
+} from '../../utils';
 import {useIsFocused} from '@react-navigation/core';
 import {useAuth} from '../../providers/AuthProvider';
 
@@ -37,7 +42,9 @@ export default function Chats({navigation}) {
       <FlatList
         refreshing={loadingChats}
         onRefresh={refetchChats}
-        data={chats.filter(chat => !!chat?.name || !!chat.lastMessage)}
+        data={chats
+          .filter(chat => !!chat?.name || !!chat.lastMessage)
+          .sort(sortChat)}
         renderItem={({item}) => (
           <ChatBlock chat={item} navigation={navigation} />
         )}

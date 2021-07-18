@@ -9,7 +9,7 @@ import {
   BackHandler,
   Platform,
 } from 'react-native';
-import {createChat} from '../../api/chat';
+import {createChat, getChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
 import DateBlock from '../../components/DateBlock';
 import Loading from '../../components/Loading';
@@ -59,13 +59,41 @@ export default function Chat({route, navigation}) {
         }
       }
     } else {
-      // TODO change according to route
+      let chatData;
+      if (route.params?.fromNotification && route.params?.chatId) {
+        const chatExits = chats.find(({_id}) => _id === route.params?.chatId);
+        chatData = chatExits;
+        if (chatExits) setChat(chatExits);
+        else {
+          const chat = await getChat(route.params?.chatId);
+          chatData = chat;
+
+          if (chat) setChat(chat);
+
+          // const fetchedChat = await
+        }
+        const {type, image, name, participants} = chatData;
+        const {chatImage, chatName} = getChatDataFormatted(
+          {
+            type,
+            image,
+            name,
+            participants,
+          },
+          user._id,
+        );
+        navigation.setParams({
+          avatar: chatImage,
+          name: chatName,
+        });
+        // TODO change according to route
+      }
     }
 
     setLoading(false);
   };
   const handleBackBtn = () => {
-    route.params?.fromGroup
+    route.params?.fromGroup || route.params?.fromNotification
       ? navigation.dispatch(StackActions.popToTop())
       : navigation.goBack();
   };

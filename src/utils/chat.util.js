@@ -53,6 +53,16 @@ export const checkIfChatExists = (chats, {_id: ourId}, {_id: contactID}) => {
   return false;
 };
 
+export const sortChat = ({lastMessage}, {lastMessage: lastMessage2}) => {
+  const date1 =
+    lastMessage?.createdAt && new Date(lastMessage?.createdAt).valueOf();
+
+  const date2 =
+    lastMessage2?.createdAt && new Date(lastMessage2?.createdAt).valueOf();
+  if (!date1) return 1;
+  if (!date2) return 0;
+  return date2 - date1;
+};
 export const changeConnectedState = (setChats, chatID, user, lastConnected) => {
   setChats(prev => {
     const chatIndex = prev.findIndex(({_id}) => _id === chatID);
@@ -86,6 +96,7 @@ export const handleSeen = (
 ) => {
   if (setMessages) {
     const inTheSameChat = chat?._id === chatId;
+    console.log(inTheSameChat);
     if (inTheSameChat) {
       setMessages(prev =>
         prev.map(m => {

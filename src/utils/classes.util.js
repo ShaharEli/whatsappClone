@@ -43,3 +43,5 @@ export const autoBind = (self, {include, exclude} = {}) => {
 
   return self;
 };
+
+export const LOCAL_NOTIFICATION_CHANNEL_ID = 'local-channel-id';

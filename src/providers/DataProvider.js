@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/core';
 import React, {createContext, useEffect, useContext, useState} from 'react';
 import {AppState} from 'react-native';
 import {SocketController} from '../api/socketController';
@@ -11,7 +12,10 @@ export default function DataProvider({children}) {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    socketController = new SocketController({setChats, setNotifications});
+    socketController = new SocketController({
+      setChats,
+      setNotifications,
+    });
 
     AppState.addEventListener('change', state => {
       if (
