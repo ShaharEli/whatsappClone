@@ -57,7 +57,7 @@ export default function NewGroup({navigation, route}) {
     <ScreenWrapper>
       {contactsLoading ? (
         <View style={[rootStyles.flex1, rootStyles.box]}>
-          <ActivityIndicator />
+          <ActivityIndicator color={colors.BLUE} />
         </View>
       ) : (
         <>
@@ -69,6 +69,17 @@ export default function NewGroup({navigation, route}) {
             }}
           />
           <FlatList
+            ListEmptyComponent={
+              <Text
+                style={[
+                  rootStyles.font(colors),
+                  rootStyles.textAlignCenter,
+                  rootStyles.alignCenter,
+                  rootStyles.mt4,
+                ]}>
+                No contacts found
+              </Text>
+            }
             onRefresh={() => {
               refetchContacts(setRefreshing);
             }}

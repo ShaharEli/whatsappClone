@@ -1,6 +1,14 @@
+import {StackActions} from '@react-navigation/routers';
 import {useHeaderHeight} from '@react-navigation/stack';
 import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, KeyboardAvoidingView, Animated, Image} from 'react-native';
+import {
+  StyleSheet,
+  KeyboardAvoidingView,
+  Animated,
+  Image,
+  BackHandler,
+  Platform,
+} from 'react-native';
 import {createChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
 import DateBlock from '../../components/DateBlock';
@@ -15,6 +23,7 @@ import {
   assets,
   checkIfChatExists,
   getChatDataFormatted,
+  getColors,
   isDifferentDay,
   MAX_HEIGHT,
 } from '../../utils';
@@ -22,6 +31,7 @@ import {
 export default function Chat({route, navigation}) {
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [participantsColors, setParticipantsColors] = useState({});
   const {chats, setChats, loadingChats, chatsError, socketController} =
     useData();
   const {user} = useAuth();
@@ -54,10 +64,22 @@ export default function Chat({route, navigation}) {
 
     setLoading(false);
   };
+  const handleBackBtn = () => {
+    route.params?.fromGroup
+      ? navigation.dispatch(StackActions.popToTop())
+      : navigation.goBack();
+  };
 
   useEffect(() => {
     if (loadingChats || chatsError) return;
     fetchChat();
+    if (Platform.OS === 'android')
+      BackHandler.addEventListener('hardwareBackPress', handleBackBtn);
+
+    return () => {
+      if (Platform.OS === 'android')
+        BackHandler.removeEventListener('hardwareBackPress', handleBackBtn);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingChats]);
 
@@ -75,6 +97,10 @@ export default function Chat({route, navigation}) {
         isActive,
         lastConnected,
       });
+    } else if (chat?.type === 'group') {
+      (async () => {
+        setParticipantsColors(await getColors(chat));
+      })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat]);
@@ -123,8 +149,10 @@ export default function Chat({route, navigation}) {
               ) && <DateBlock value={messages[index - 1]?.createdAt} />)}
             <MessageBlock
               {...item}
+              chatType={chat?.type}
               participants={chat.participants}
               lastMessageFrom={messages?.[index + 1]?.by}
+              participantsColors={participantsColors}
             />
           </>
         )}

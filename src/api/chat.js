@@ -5,9 +5,11 @@ import {getItem, setItem} from '../utils/storage.util';
 import securedFetch from './privateFetch';
 const BASE = '/chat';
 
-export const getMessages = async chatId => {
+export const getMessages = async (chatId, isGroup = false) => {
   try {
-    const messages = await securedFetch(`${BASE}/messages/${chatId}`);
+    const messages = await securedFetch(
+      `${BASE}/messages?chatId=${chatId}&isGroup=${isGroup}`,
+    );
     return messages;
   } catch ({error}) {
     logger.error(error);
@@ -15,11 +17,20 @@ export const getMessages = async chatId => {
   }
 };
 
-export const createChat = async (participants, type) => {
+export const createChat = async (
+  participants,
+  type,
+  image,
+  name,
+  userFullName,
+) => {
   try {
     const {newChat} = await securedFetch(`${BASE}/new`, 'POST', {
       participants,
       type,
+      image,
+      name,
+      userFullName,
     });
     return newChat;
   } catch ({error}) {

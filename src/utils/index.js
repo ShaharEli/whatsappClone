@@ -10,3 +10,4 @@ export * from './api.util';
 export * from './navigation.util';
 export * from './chat.util';
 export * from './classes.util';
+export * from './colors.util';

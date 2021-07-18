@@ -37,7 +37,7 @@ export default function Chats({navigation}) {
       <FlatList
         refreshing={loadingChats}
         onRefresh={refetchChats}
-        data={chats.filter(chat => !!chat.lastMessage)}
+        data={chats.filter(chat => !!chat?.name || !!chat.lastMessage)}
         renderItem={({item}) => (
           <ChatBlock chat={item} navigation={navigation} />
         )}

@@ -1,4 +1,5 @@
 import React, {createContext, useState, useContext, useEffect} from 'react';
+import {Platform} from 'react-native';
 import {loginWithToken} from '../api/auth';
 
 import Loading from '../components/Loading';

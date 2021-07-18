@@ -27,6 +27,7 @@ import Chat from '../screens/Chat/Chat';
 import Chats from '../screens/Chats/Chats';
 import ProfileView from '../screens/ProfileView/ProfileView';
 import GroupMetaData from '../screens/GroupMetaData/GroupMetaData';
+import {StackActions} from '@react-navigation/routers';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 const baseHeader = colors => ({
@@ -44,7 +45,6 @@ const baseHeader = colors => ({
   },
   gestureEnabled: false,
 });
-
 function TabNavigator() {
   const {colors} = useTheme();
   return (
@@ -116,6 +116,7 @@ export default function PrivateRoutes() {
         component={GroupMetaData}
         options={({navigation}) => ({
           ...baseHeader(colors),
+          unmountOnBlur: true,
           headerLeft: () => (
             <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
               <Ionicons
@@ -148,6 +149,7 @@ export default function PrivateRoutes() {
 
           return {
             ...baseHeader(colors),
+            unmountOnBlur: true,
             headerRight: () =>
               searching ? (
                 <Ionicons
@@ -215,8 +217,16 @@ export default function PrivateRoutes() {
         name="Chat"
         component={Chat}
         options={({navigation, route}) => {
-          const {avatar, name, _id, lastConnected, isActive, userTyping} =
-            route.params;
+          const {
+            avatar,
+            name,
+            _id,
+            lastConnected,
+            isActive,
+            fromGroup,
+            userTyping,
+          } = route.params;
+
           return {
             ...baseHeader(colors),
             headerRight: () => (
@@ -233,7 +243,11 @@ export default function PrivateRoutes() {
                   name="arrow-back"
                   color={colors.INACTIVE_TINT}
                   size={30}
-                  onPress={() => navigation.goBack()}
+                  onPress={() =>
+                    fromGroup
+                      ? navigation.dispatch(StackActions.popToTop())
+                      : navigation.goBack()
+                  }
                   style={rootStyles.mx3}
                 />
                 <Image source={avatar} style={rootStyles.customAvatar(30)} />

@@ -1,15 +1,22 @@
 import {TextField} from '@ubaids/react-native-material-textfield';
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import {useTheme} from '../providers/StyleProvider';
 
 export default function UnderlineTextField({
   containerStyle,
-  onTextChange,
+  onChangeText,
   placeholder,
   onFocus,
+  value,
 }) {
   const {rootStyles, colors} = useTheme();
+  const inputRef = useRef('');
+  useEffect(() => {
+    if (value !== undefined) {
+      inputRef?.current?.setValue(value);
+    }
+  }, [value, inputRef]);
   return (
     <TextField
       placeholder={placeholder}
@@ -19,7 +26,8 @@ export default function UnderlineTextField({
           ...rootStyles.maxWidth(300),
         }
       }
-      onTextChange={onTextChange}
+      ref={inputRef}
+      onChangeText={onChangeText}
       placeholderTextColor={colors.GREY_LIGHT}
       baseColor={colors.INPUT_BASE}
       tintColor={colors.GREEN_PRIMARY}

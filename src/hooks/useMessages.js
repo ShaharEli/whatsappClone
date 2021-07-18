@@ -31,14 +31,13 @@ export const useMessages = (
 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
-    const messages = await getMessages(chat._id);
+    const messages = await getMessages(chat._id, chat.type === 'group');
     if (!messages) setError(true);
     else setMessages(messages);
     setLoading(false);
   }, [chat]);
 
   const onChangeText = useCallback(text => {
-    console.log(text);
     if (text?.code) setInput(prev => prev + text.code);
     else setInput(text);
     setTyping(true);

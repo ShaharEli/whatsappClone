@@ -20,6 +20,7 @@ export default function ChatBlock({chat, navigation}) {
     participants,
     usersTyping = [],
     unreadMessages,
+    createdAt,
   } = chat;
 
   const {user} = useAuth();
@@ -42,7 +43,6 @@ export default function ChatBlock({chat, navigation}) {
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usersTyping.length]);
-
   const getType = useCallback(() => {
     setCurrentlyType(prev => {
       if (usersTyping.length === 0) {
@@ -69,11 +69,16 @@ export default function ChatBlock({chat, navigation}) {
   }, [participants, lastMessage, user]);
 
   const renderContent = useCallback(() => {
-    switch (lastMessage.type) {
+    switch (lastMessage?.type) {
       case 'text':
         return (
           <View style={rootStyles.flexRow}>
             <Text numberOfLines={1} style={styles.secondaryText(colors)}>
+              {type === 'group'
+                ? lastMessage?.by?._id === user._id
+                  ? 'You: '
+                  : `${lastMessage?.by.firstName} ${lastMessage?.by.lastName}: `
+                : null}
               {lastMessage.content}
             </Text>
             <ChatSeen />
@@ -99,7 +104,14 @@ export default function ChatBlock({chat, navigation}) {
           );
         }
       default:
-        return null;
+        return (
+          <View style={rootStyles.flexRow}>
+            <Text numberOfLines={1} style={styles.secondaryText(colors)}>
+              New group
+            </Text>
+            <ChatSeen />
+          </View>
+        );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastMessage, type]);
@@ -155,7 +167,7 @@ export default function ChatBlock({chat, navigation}) {
             rootStyles.mb1,
             unreadMessages && styles.typingText(colors),
           ]}>
-          {dateToFromNowDaily(lastMessage.createdAt)}
+          {dateToFromNowDaily(lastMessage?.createdAt)}
         </Text>
         {unreadMessages ? (
           <Text

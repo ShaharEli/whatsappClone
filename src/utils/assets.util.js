@@ -4,4 +4,5 @@ export const assets = {
   chatLightBg: require('../assets/imgs/chats/lightBg.png'),
   chatDarkBg: require('../assets/imgs/chats/darkBg.png'),
   cameraPlaceholder: require('../assets/imgs/chats/cameraPlaceholder.png'),
+  groupPlaceholder: require('../assets/imgs/chats/groupPlaceholder.jpeg'),
 };

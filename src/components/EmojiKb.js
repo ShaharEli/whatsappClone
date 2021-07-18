@@ -29,6 +29,7 @@ export default function EmojiKb({
           containerStyle={{
             ...rootStyles.width(0.8, -40),
             marginBottom: 50,
+            ...kbStyle,
             ...(shown ? {} : {width: 0, height: 0, opacity: 0}),
           }}
           showBoard={shown}

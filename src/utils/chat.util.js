@@ -24,7 +24,10 @@ export const getChatDataFormatted = (
   if (image) chatImage = {uri: image};
   else {
     if (otherParticipant?.avatar) chatImage = {uri: otherParticipant?.avatar};
-    else chatImage = assets.profilePlaceholder;
+    else {
+      chatImage =
+        type === 'group' ? assets.groupPlaceholder : assets.profilePlaceholder;
+    }
   }
   return {chatImage, chatName, isActive, lastConnected};
 };

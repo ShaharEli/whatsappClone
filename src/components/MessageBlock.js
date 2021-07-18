@@ -22,12 +22,23 @@ function MessageBlock({
   createdAt,
   seenBy,
   participants,
+  chatType,
+  participantsColors,
 }) {
   const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
   const isFromMe = useMemo(() => user._id === by, [by, user]);
   const [arrowColor, setArrowColor] = useState(null);
   const [isForwording, setIsForwording] = useState(false);
+  const messageCreator = useMemo(
+    () =>
+      chatType !== 'private'
+        ? !by?._id || user._id === by._id
+          ? 'You'
+          : `${by.firstName} ${by.lastName}`
+        : null,
+    [by, user, chatType],
+  );
 
   const swipeRef = useRef();
 
@@ -83,16 +94,27 @@ function MessageBlock({
             : styles.notFromMeContainer({colors, rootStyles})
         }>
         <>
-          <Text style={[rootStyles.font(colors), styles.msgText]}>
-            {content}
-          </Text>
-          <Text style={styles.time(colors)}>
-            {moment(createdAt).format('HH:mm')}
-          </Text>
-          <SeenIndicator {...{participants, isFromMe, seenBy}} />
-          {(!lastMessageFrom || lastMessageFrom !== by) && (
-            <View style={styles.arrow(colors, isFromMe, arrowColor)} />
+          {messageCreator && (
+            <Text
+              style={[
+                rootStyles.textColor(participantsColors[by?._id || by]),
+                styles.msgText,
+              ]}>
+              {messageCreator}
+            </Text>
           )}
+          <View style={rootStyles.flexRow}>
+            <Text style={[rootStyles.font(colors), styles.msgText]}>
+              {content}
+            </Text>
+            <Text style={styles.time(colors)}>
+              {moment(createdAt).format('HH:mm')}
+            </Text>
+            <SeenIndicator {...{participants, isFromMe, seenBy}} />
+            {(!lastMessageFrom || lastMessageFrom !== by) && (
+              <View style={styles.arrow(colors, isFromMe, arrowColor)} />
+            )}
+          </View>
         </>
       </TouchableHighlight>
     </Swipeable>
@@ -112,7 +134,7 @@ const styles = StyleSheet.create({
   baseContainer: rootStyles => ({
     ...rootStyles.p1,
     ...rootStyles.my1,
-    ...rootStyles.flexRow,
+    // ...rootStyles.flexRow,
     maxWidth: '70%',
     borderRadius: 10,
   }),
@@ -124,6 +146,7 @@ const styles = StyleSheet.create({
   }),
   msgText: {
     maxWidth: '80%',
+    zIndex: 10,
   },
   notFromMeContainer: ({colors, rootStyles}) => ({
     backgroundColor: colors.HEADER,
@@ -134,7 +157,7 @@ const styles = StyleSheet.create({
   arrow: (colors, isFromMe, arrowColor) => ({
     position: 'absolute',
     zIndex: -10,
-    top: 0,
+    top: -10,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
     borderLeftWidth: 10,
@@ -145,8 +168,8 @@ const styles = StyleSheet.create({
       : isFromMe
       ? colors.GREEN_PRIMARY
       : colors.HEADER,
-    left: isFromMe ? -10 : null,
-    right: !isFromMe ? -10 : null,
+    left: isFromMe ? -20 : null,
+    right: !isFromMe ? -20 : null,
   }),
   time: colors => ({
     alignSelf: 'flex-end',
