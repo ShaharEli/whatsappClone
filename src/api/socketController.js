@@ -2,6 +2,8 @@ import {apiHost} from '../bin';
 import {getItem, autoBind} from '../utils';
 import {getAccessToken} from './auth';
 import socketIOClient from 'socket.io-client';
+import PushManager from './PushManager';
+import {Platform} from 'react-native';
 
 export class SocketController {
   constructor({setChats, setNotifications}) {
@@ -48,7 +50,11 @@ export class SocketController {
 
   async connect(token) {
     this.socket = socketIOClient(apiHost, {
-      auth: {token: token ? token : await getItem('accessToken')},
+      auth: {
+        token: token ? token : await getItem('accessToken'),
+        firebaseToken:
+          Platform.OS === 'android' ? await PushManager.getPushToken() : null,
+      },
     });
     this.isReady = true;
     this.initListeners();
