@@ -3,7 +3,12 @@ import {Platform} from 'react-native';
 import {getMessages, getUserActiveState, sendMessage} from '../api/chat';
 import {useAuth} from '../providers/AuthProvider';
 import {useData} from '../providers/DataProvider';
-import {changeConnectedState, handleNewMessage, handleSeen} from '../utils';
+import {
+  changeConnectedState,
+  getType,
+  handleNewMessage,
+  handleSeen,
+} from '../utils';
 
 let timeout;
 let firstTyped = true;
@@ -23,6 +28,7 @@ export const useMessages = (
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [currentlyType, setCurrentlyType] = useState(false);
 
   const {user} = useAuth();
   const [loading, setLoading] = useState(true);
@@ -48,16 +54,25 @@ export const useMessages = (
   }, []);
 
   useEffect(() => {
+    const currChat = chats.find(({_id}) => _id === chat?._id);
+    if (!currChat) return;
+    const {usersTyping = []} = currChat;
+    let typeInterval;
     if (chat?.type === 'private') {
-      const currChat = chats.find(({_id}) => _id === chat?._id);
-      if (!currChat) return;
-      const {usersTyping = []} = currChat;
       if (usersTyping.length) {
         navigation.setParams({userTyping: true});
       } else {
         navigation.setParams({userTyping: false});
       }
+    } else {
+      typeInterval = setInterval(() => {
+        navigation.setParams({
+          usersTyping: getType(setCurrentlyType, usersTyping, true),
+        });
+      }, 1000);
     }
+
+    return () => typeInterval && clearInterval(typeInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat, chats]);
 

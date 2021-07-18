@@ -99,6 +99,9 @@ export default function Chat({route, navigation}) {
       });
     } else if (chat?.type === 'group') {
       (async () => {
+        navigation.setParams({
+          subHeader: chat.participants,
+        });
         setParticipantsColors(await getColors(chat));
       })();
     }

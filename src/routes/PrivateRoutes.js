@@ -28,6 +28,7 @@ import Chats from '../screens/Chats/Chats';
 import ProfileView from '../screens/ProfileView/ProfileView';
 import GroupMetaData from '../screens/GroupMetaData/GroupMetaData';
 import {StackActions} from '@react-navigation/routers';
+import {useAuth} from '../providers/AuthProvider';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 const baseHeader = colors => ({
@@ -89,6 +90,7 @@ function TabNavigator() {
 export default function PrivateRoutes() {
   const {colors, rootStyles} = useTheme();
   const {refetchContacts} = useContacts();
+  const {user} = useAuth();
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -225,7 +227,15 @@ export default function PrivateRoutes() {
             isActive,
             fromGroup,
             userTyping,
+            subHeader,
+            usersTyping,
           } = route.params;
+          const groupNames = subHeader
+            ?.sort(({_id}) => (user._id === _id ? 1 : -1))
+            .map(({firstName, lastName, _id}) =>
+              _id === user._id ? 'You' : `${firstName} ${lastName}`,
+            )
+            .join(', ');
 
           return {
             ...baseHeader(colors),
@@ -264,9 +274,13 @@ export default function PrivateRoutes() {
                     style={[styles.headerRight(colors), styles.clickableTitle]}>
                     {name}
                   </Text>
-                  {(isActive || lastConnected) && (
+                  {(isActive || lastConnected || subHeader) && (
                     <Text style={styles.headerRightSmall(colors)}>
-                      {userTyping
+                      {subHeader
+                        ? usersTyping
+                          ? `${usersTyping.firstName} ${usersTyping.lastName} typing...`
+                          : groupNames
+                        : userTyping
                         ? 'typing...'
                         : isActive
                         ? 'online'

@@ -1,5 +1,6 @@
 import {Platform} from 'react-native';
 import {assets} from './assets.util';
+import {pickRandomListValue} from './formatters.util';
 
 export const getChatDataFormatted = (
   {type, image, participants, name},
@@ -175,4 +176,24 @@ export const handleNewMessageInChats = ({message, returnedChat}, setChats) => {
       });
     }
   });
+};
+
+export const getType = (setCurrentlyType, usersTyping, returnFalse) => {
+  let res;
+  setCurrentlyType(prev => {
+    if (usersTyping.length === 0) {
+      res = returnFalse ? false : {};
+      return res;
+    }
+    if (usersTyping.length > 1) {
+      res = pickRandomListValue(
+        usersTyping.filter(currUser => currUser._id !== prev._id),
+      );
+      return res;
+    } else {
+      res = usersTyping[0];
+      return res;
+    }
+  });
+  return res;
 };

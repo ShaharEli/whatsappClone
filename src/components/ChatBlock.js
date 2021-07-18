@@ -5,6 +5,7 @@ import {useTheme} from '../providers/StyleProvider';
 import {
   dateToFromNowDaily,
   getChatDataFormatted,
+  getType,
   MAX_WIDTH,
   pickRandomListValue,
 } from '../utils';
@@ -38,25 +39,14 @@ export default function ChatBlock({chat, navigation}) {
   );
 
   useEffect(() => {
-    const interval = setInterval(getType, 1000);
-    getType();
+    const interval = setInterval(
+      () => getType(setCurrentlyType, usersTyping),
+      1000,
+    );
+    getType(setCurrentlyType, usersTyping);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usersTyping.length]);
-  const getType = useCallback(() => {
-    setCurrentlyType(prev => {
-      if (usersTyping.length === 0) {
-        return {};
-      }
-      if (usersTyping.length > 1) {
-        return pickRandomListValue(
-          usersTyping.filter(currUser => currUser._id !== prev._id),
-        );
-      } else {
-        return usersTyping[0];
-      }
-    });
-  }, [usersTyping]);
 
   const ChatSeen = useCallback(() => {
     return (
