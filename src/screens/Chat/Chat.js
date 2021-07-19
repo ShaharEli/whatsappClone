@@ -147,7 +147,6 @@ export default function Chat({route, navigation}) {
   }, [chat]);
 
   const headerHeight = useHeaderHeight();
-
   if (loading) return <Loading />;
 
   return (
@@ -201,10 +200,10 @@ export default function Chat({route, navigation}) {
       />
       <ScrollToBottomBubble {...{yProgress, scrollToEnd}} />
       <ChatInput
+        {...{setMedia, media, setMsgType, onChangeText, msgType, navigation}}
         value={input}
         disabled={isSending}
         onSubmit={sendMsg}
-        {...{setMedia, setMsgType, onChangeText, media, msgType, navigation}}
       />
     </KeyboardAvoidingView>
   );

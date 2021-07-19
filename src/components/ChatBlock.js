@@ -80,7 +80,12 @@ export default function ChatBlock({chat, preventDefault}) {
         if (lastMessage.content) {
           return (
             <View style={rootStyles.flexRow}>
-              <Entypo name="images" size={30} color={colors.SECONDARY_FONT} />
+              <Entypo
+                name="images"
+                size={20}
+                color={colors.SECONDARY_FONT}
+                style={rootStyles.me3}
+              />
               <Text numberOfLines={1} style={styles.secondaryText(colors)}>
                 {lastMessage.content}
               </Text>
@@ -90,7 +95,7 @@ export default function ChatBlock({chat, preventDefault}) {
         } else {
           return (
             <View>
-              <Entypo name="images" size={30} />
+              <Entypo name="images" size={20} style={rootStyles.me3} />
               <ChatSeen />
             </View>
           );

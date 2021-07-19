@@ -3,10 +3,22 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {useTheme} from '../providers/StyleProvider';
 
-export default function Attachment({icon, label, cb, lightColor, darkColor}) {
+export default function Attachment({
+  icon,
+  label,
+  cb,
+  lightColor,
+  darkColor,
+  toggleAttachmentsFolder,
+}) {
   const {colors, rootStyles} = useTheme();
   return (
-    <TouchableOpacity style={styles.btn} onPress={cb}>
+    <TouchableOpacity
+      style={styles.btn}
+      onPress={() => {
+        cb();
+        toggleAttachmentsFolder();
+      }}>
       <View style={styles.container}>
         <View style={styles.halfCircle(darkColor)} />
         <View style={styles.halfCircle(lightColor)} />

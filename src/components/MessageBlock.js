@@ -6,6 +6,7 @@ import {
   Text,
   View,
   TouchableHighlight,
+  Image,
 } from 'react-native';
 import {useAuth} from '../providers/AuthProvider';
 import {useTheme} from '../providers/StyleProvider';
@@ -24,6 +25,8 @@ function MessageBlock({
   participants,
   chatType,
   participantsColors,
+  media,
+  type,
 }) {
   const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
@@ -106,6 +109,9 @@ function MessageBlock({
               {messageCreator}
             </Text>
           )}
+          {media && type === 'image' && (
+            <Image source={{uri: media}} style={styles.img} />
+          )}
           <View style={rootStyles.flexRow}>
             <Text style={[rootStyles.font(colors), styles.msgText]}>
               {content}
@@ -182,4 +188,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: colors.GREY_LIGHT,
   }),
+  img: {
+    width: 100,
+    height: 100,
+    marginBottom: 5,
+  },
 });

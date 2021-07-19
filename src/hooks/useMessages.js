@@ -206,5 +206,7 @@ export const useMessages = (
     errorMsgs: error,
     messages,
     isSending,
+    media,
+    msgType,
   };
 };

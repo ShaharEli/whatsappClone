@@ -5,7 +5,9 @@ import {
   TextInput,
   Animated,
   TouchableOpacity,
+  Text,
   View,
+  Image,
 } from 'react-native';
 import {useTheme} from '../providers/StyleProvider';
 import {attachments, MAX_WIDTH} from '../utils';
@@ -13,6 +15,7 @@ import RecordBubble from './RecordBubble';
 import Entypo from 'react-native-vector-icons/Entypo';
 import EmojiKb from './EmojiKb';
 import Attachment from './Attachment';
+import Feather from 'react-native-vector-icons/Feather';
 const ANIMATION_DUR = 500;
 const animationOpacitySettings = animationIn => ({
   toValue: animationIn ? 1 : 0,
@@ -41,25 +44,23 @@ export default function ChatInput({
   const [attachmentsShown, setAttachmentsShown] = useState(false);
   const emojiKeyboardRef = useRef();
   const opacity = useRef(new Animated.Value(0)).current;
-  const bottom = useRef(new Animated.Value(0)).current;
-  const openAttachmentsFolder = () => {
-    Keyboard.dismiss();
-    setAttachmentsShown(prev => !prev);
-  };
-  useEffect(() => {
-    if (attachmentsShown) {
-      Animated.timing(opacity, animationOpacitySettings(true)).start();
-      Animated.timing(bottom, animationBottomSettings(true)).start();
-    } else {
-      Animated.timing(opacity, animationOpacitySettings(false)).start();
-      Animated.timing(bottom, animationBottomSettings(false)).start();
-    }
+  const bottom = useRef(new Animated.Value(-200)).current;
 
-    return () => {
-      Animated.timing(opacity, animationOpacitySettings(false)).start();
-      Animated.timing(bottom, animationBottomSettings(false)).start();
-    };
-  }, [attachmentsShown]);
+  const toggleAttachmentsFolder = () => {
+    Keyboard.dismiss();
+    setAttachmentsShown(prev => {
+      prev ? closeAttachmentsFolder() : openAttachmentsFolder();
+      return !prev;
+    });
+  };
+  const closeAttachmentsFolder = () => {
+    Animated.timing(opacity, animationOpacitySettings(false)).start();
+    Animated.timing(bottom, animationBottomSettings(false)).start();
+  };
+  const openAttachmentsFolder = () => {
+    Animated.timing(opacity, animationOpacitySettings(true)).start();
+    Animated.timing(bottom, animationBottomSettings(true)).start();
+  };
 
   return (
     <View>
@@ -79,7 +80,11 @@ export default function ChatInput({
           },
         ]}>
         {attachments(navigation, setMedia, setMsgType).map(item => (
-          <Attachment {...item} key={item.label} />
+          <Attachment
+            {...item}
+            key={item.label}
+            toggleAttachmentsFolder={toggleAttachmentsFolder}
+          />
         ))}
       </Animated.View>
       <View
@@ -101,13 +106,31 @@ export default function ChatInput({
             color={colors.SECONDARY_FONT}
             size={25}
             style={styles.flexEnd}
-            onPress={openAttachmentsFolder}
+            onPress={toggleAttachmentsFolder}
           />
+          {msgType === 'image' && media && (
+            <>
+              <Feather
+                name="x"
+                color={colors.SECONDARY_FONT}
+                size={25}
+                style={styles.absoluteIcon}
+                onPress={() => {
+                  setMedia(null);
+                  setMsgType('text');
+                }}
+              />
+              <Image source={{uri: media}} style={styles.img} />
+            </>
+          )}
           <TextInput
             maxHeight={150}
             minHeight={50}
             value={value}
-            onFocus={() => emojiKeyboardRef?.current?.(false)}
+            onFocus={() => {
+              closeAttachmentsFolder();
+              emojiKeyboardRef?.current?.(false);
+            }}
             onChangeText={onChangeText}
             placeholder="Type message"
             style={styles.input(colors)}
@@ -150,4 +173,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     color: colors.font,
   }),
+  img: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+  },
+  absoluteIcon: {position: 'absolute', top: 5, left: 15},
 });
