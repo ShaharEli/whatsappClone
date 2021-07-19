@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {StyleSheet, Text, View, Image, TextInput, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
@@ -7,7 +7,6 @@ import Camera from '../screens/Camera/Camera';
 import Stories from '../screens/Stories/Stories';
 import Calls from '../screens/Calls/Calls';
 import Entypo from 'react-native-vector-icons/Entypo';
-import PushManager from '../api/PushManager';
 import {useTheme} from '../providers/StyleProvider';
 import {
   CHAT_OPTIONS,
@@ -30,7 +29,6 @@ import ProfileView from '../screens/ProfileView/ProfileView';
 import GroupMetaData from '../screens/GroupMetaData/GroupMetaData';
 import {StackActions} from '@react-navigation/routers';
 import {useAuth} from '../providers/AuthProvider';
-import {useNavigation} from '@react-navigation/core';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 const baseHeader = colors => ({
@@ -50,9 +48,7 @@ const baseHeader = colors => ({
 });
 function TabNavigator({navigation, route}) {
   const {colors} = useTheme();
-  useEffect(() => {
-    if (Platform.OS === 'android') PushManager.addNavigation(navigation, route);
-  }, [navigation, route]);
+
   return (
     <>
       <Tab.Navigator
@@ -75,14 +71,9 @@ function TabNavigator({navigation, route}) {
         />
         <Tab.Screen
           name="Chats"
-          options={({navigation}) => {
-            const name = getActiveRouteState(
-              navigation.dangerouslyGetState(),
-            ).name;
-            return {
-              title: 'Chats',
-            };
-          }}
+          options={() => ({
+            title: 'Chats',
+          })}
           component={Chats}
         />
         <Tab.Screen name="Status" component={Stories} />

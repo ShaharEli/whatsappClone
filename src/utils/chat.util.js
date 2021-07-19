@@ -96,7 +96,6 @@ export const handleSeen = (
 ) => {
   if (setMessages) {
     const inTheSameChat = chat?._id === chatId;
-    console.log(inTheSameChat);
     if (inTheSameChat) {
       setMessages(prev =>
         prev.map(m => {

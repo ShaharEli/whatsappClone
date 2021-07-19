@@ -3,10 +3,17 @@
  */
 
 import messaging from '@react-native-firebase/messaging';
-import {Platform} from 'react-native';
+import {AppState, Platform} from 'react-native';
 import PushNotification from 'react-native-push-notification';
-import {autoBind, LOCAL_NOTIFICATION_CHANNEL_ID, logger} from '../utils';
-
+import {
+  autoBind,
+  LOCAL_NOTIFICATION_CHANNEL_ID,
+  logger,
+  navigate,
+  getRouteName,
+  navigationRef,
+  delay,
+} from '../utils';
 class PushManager {
   pushToken = null;
 
@@ -26,41 +33,57 @@ class PushManager {
     this.initLocalChannels();
   }
 
-  addNavigation(navigation, route) {
-    this.navigation = navigation;
-    this.route = route;
-  }
-
   pushNotificationConfigure() {
     PushNotification.configure({
       requestPermissions: true,
-      onNotification: notification => {
-        console.log(this.route, notification);
-        const {channelId, tag} = notification;
-        switch (tag) {
-          case 'newMessage':
-            if (
-              (this?.route?.params?._id || this?.route?.params?.chat?._id) ===
-              notification
-            ) {
-              return notification.finish();
-            } else {
-              this.navigation?.navigate('Chat', {
-                chatId: channelId,
-                fromNotification: true,
-              });
-              PushNotification.getDeliveredNotifications(notifications => {
-                PushNotification.removeDeliveredNotifications(
-                  notifications
-                    .filter(notification => notification.group === channelId)
-                    .map(({identifier}) => identifier),
-                );
-              });
-              return notification.finish();
-            }
-        }
-      },
+      onNotification: notification => this.onNotification(notification),
     });
+  }
+  async onNotification(notification, fromFireBase) {
+    let channelId, tag;
+    if (fromFireBase) {
+      channelId = notification.data.chatId;
+      tag = notification.data.type;
+    } else {
+      channelId = notification.channelId;
+      tag = notification.tag;
+    }
+    switch (tag) {
+      case 'newMessage':
+        if (
+          (navigationRef.current?.params?._id ||
+            navigationRef.current?.params?.chat?._id) === notification
+        ) {
+          return fromFireBase ? null : notification.finish();
+        } else {
+          AppState.addEventListener('change', state =>
+            this.navigateAndRemoveListener(state, 'Chat', {
+              chatId: channelId,
+              fromNotification: true,
+            }),
+          );
+          if (fromFireBase) return;
+          PushNotification.getDeliveredNotifications(notifications => {
+            PushNotification.removeDeliveredNotifications(
+              notifications
+                .filter(notification => notification.group === channelId)
+                .map(({identifier}) => identifier),
+            );
+          });
+          return notification.finish();
+        }
+    }
+  }
+
+  async navigateAndRemoveListener(state, to, params) {
+    if (state === 'active') {
+      if (!navigationRef.current) {
+        await delay(1000);
+        return this.navigateAndRemoveListener(state, to, params);
+      }
+      navigate(to, params);
+      AppState.removeEventListener('change', this.navigateAndRemoveListener);
+    }
   }
 
   initLocalChannels() {
@@ -104,6 +127,7 @@ class PushManager {
 
   async initBg() {
     const enabled = await messaging().requestPermission();
+    messaging().onNotificationOpenedApp(n => logger.warn(n));
     messaging().onMessage(({notification: {title, body: message}, data}) => {
       switch (data.type) {
         case 'newMessage':
@@ -119,9 +143,9 @@ class PushManager {
       }
     });
     if (enabled) {
-      messaging().setBackgroundMessageHandler(message => {
-        console.log('message', message);
-      });
+      messaging().setBackgroundMessageHandler(async message =>
+        this.onNotification(message, true),
+      );
     }
   }
 }
