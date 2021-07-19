@@ -39,8 +39,18 @@ export default function Chat({route, navigation}) {
   const scrollToEnd = () => {
     flatListRef?.current?.scrollToOffset({y: 0});
   };
-  const {onChangeText, input, sendMsg, messages, isSending, loadingMsgs} =
-    useMessages(chat, socketController, scrollToEnd, navigation);
+  const {
+    onChangeText,
+    input,
+    sendMsg,
+    messages,
+    isSending,
+    loadingMsgs,
+    setMedia,
+    media,
+    msgType,
+    setMsgType,
+  } = useMessages(chat, socketController, scrollToEnd, navigation);
 
   const flatListRef = useRef();
   const yProgress = useRef(new Animated.Value(0)).current;
@@ -193,8 +203,8 @@ export default function Chat({route, navigation}) {
       <ChatInput
         value={input}
         disabled={isSending}
-        onChangeText={onChangeText}
         onSubmit={sendMsg}
+        {...{setMedia, setMsgType, onChangeText, media, msgType, navigation}}
       />
     </KeyboardAvoidingView>
   );

@@ -5,7 +5,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {MAX_HEIGHT, MAX_WIDTH, SETTINGS_MENU_SIZE} from '../utils';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {useFocusEffect, useIsFocused} from '@react-navigation/core';
+import {useIsFocused} from '@react-navigation/core';
 
 export default function SettingsMenu({
   navigation,
@@ -20,6 +20,11 @@ export default function SettingsMenu({
   useEffect(() => {
     setIsMenuOpen(false);
   }, [isFocused]);
+
+  useEffect(() => {
+    navigation.setParams({preventDefault: isMenuOpen});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMenuOpen]);
 
   return (
     <View style={rootStyles.mx3}>
@@ -43,23 +48,25 @@ export default function SettingsMenu({
         )}
       </View>
       {isMenuOpen && (
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => setIsMenuOpen(false)}
-          containerStyle={styles.overlay}>
+        <>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setIsMenuOpen(false)}
+            containerStyle={styles.overlay}
+          />
           <View style={styles.menuContainer(colors)}>
             {options.map(({route = null, label, onPress}) => (
               <TouchableOpacity
                 style={styles.route(colors)}
                 key={label}
-                onPress={() =>
-                  route ? navigation.navigate(route) : onPress()
-                }>
+                onPress={() => {
+                  route ? navigation.navigate(route) : onPress();
+                }}>
                 <Text style={{color: colors.SECONDARY_FONT}}>{label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-        </TouchableOpacity>
+        </>
       )}
     </View>
   );
@@ -69,6 +76,7 @@ const styles = StyleSheet.create({
   menuContainer: colors => ({
     position: 'absolute',
     right: 15,
+    top: 10,
     width: SETTINGS_MENU_SIZE,
     height: SETTINGS_MENU_SIZE,
     backgroundColor: colors.SETTINGS_MENU,
@@ -81,7 +89,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     borderRadius: 2,
-    zIndex: 10000,
+    zIndex: 99,
   }),
   route: colors => ({
     justifyContent: 'center',
@@ -90,6 +98,7 @@ const styles = StyleSheet.create({
   }),
   overlay: {
     position: 'absolute',
+    zIndex: 90,
     height: MAX_HEIGHT,
     width: MAX_WIDTH,
     right: '-20%',

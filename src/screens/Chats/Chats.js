@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FlatList, Platform, StyleSheet, Text} from 'react-native';
 import FloatingBtn from '../../components/FloatingBtn';
 import {useTheme} from '../../providers/StyleProvider';
@@ -15,7 +15,7 @@ import {
 import {useIsFocused} from '@react-navigation/core';
 import {useAuth} from '../../providers/AuthProvider';
 
-export default function Chats({navigation}) {
+function Chats({navigation, route, searching, preventDefault}) {
   const {colors, rootStyles} = useTheme();
   const {chats, loadingChats, refetchChats, socketController, setChats} =
     useData();
@@ -46,7 +46,7 @@ export default function Chats({navigation}) {
           .filter(chat => !!chat?.name || !!chat.lastMessage)
           .sort(sortChat)}
         renderItem={({item}) => (
-          <ChatBlock chat={item} navigation={navigation} />
+          <ChatBlock chat={item} {...{route, navigation, preventDefault}} />
         )}
         keyExtractor={item => item._id}
         ItemSeparatorComponent={() => (
@@ -78,3 +78,4 @@ export default function Chats({navigation}) {
 }
 
 const styles = StyleSheet.create({});
+export default React.memo(Chats);

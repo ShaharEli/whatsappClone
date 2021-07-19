@@ -25,12 +25,13 @@ import {
   newGroupHeader,
   tabBarOptions,
 } from './headers';
+import Location from '../screens/Location/Location';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
-function TabNavigator() {
+function TabNavigator({route}) {
   const {colors} = useTheme();
-
+  const {searching, preventDefault} = route?.params;
   return (
     <Tab.Navigator
       initialRouteName="Chats"
@@ -45,9 +46,9 @@ function TabNavigator() {
         name="Chats"
         options={() => ({
           title: 'Chats',
-        })}
-        component={Chats}
-      />
+        })}>
+        {() => <Chats {...{searching, preventDefault}} />}
+      </Tab.Screen>
       <Tab.Screen name="Status" component={Stories} />
       <Tab.Screen name="Calls" component={Calls} />
     </Tab.Navigator>
@@ -85,6 +86,7 @@ export default function PrivateRoutes() {
       <Stack.Screen name="Broadcast" component={Broadcast} />
       <Stack.Screen name="FavoriteMsgs" component={FavoriteMsgs} />
       <Stack.Screen name="ProfileView" component={ProfileView} />
+      <Stack.Screen name="Location" component={Location} />
       <Stack.Screen
         name="Chat"
         component={Chat}

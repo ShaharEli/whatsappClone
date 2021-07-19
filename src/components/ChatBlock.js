@@ -12,7 +12,7 @@ import {
 import Entypo from 'react-native-vector-icons/Entypo';
 import SeenIndicator from './SeenIndicator';
 
-export default function ChatBlock({chat, navigation}) {
+export default function ChatBlock({chat, navigation, preventDefault}) {
   const {
     type,
     lastMessage,
@@ -111,16 +111,18 @@ export default function ChatBlock({chat, navigation}) {
 
   return (
     <TouchableOpacity
-      onPress={() =>
-        navigation.navigate('Chat', {
-          chat,
-          avatar: chatImage,
-          name: chatName,
-          type,
-          isActive,
-          lastConnected,
-        })
-      }
+      onPress={() => {
+        preventDefault
+          ? null
+          : navigation.navigate('Chat', {
+              chat,
+              avatar: chatImage,
+              name: chatName,
+              type,
+              isActive,
+              lastConnected,
+            });
+      }}
       style={[
         rootStyles.flexRow,
         rootStyles.alignCenter,
