@@ -11,8 +11,10 @@ import {
 } from '../utils';
 import Entypo from 'react-native-vector-icons/Entypo';
 import SeenIndicator from './SeenIndicator';
+import {useNavigation} from '@react-navigation/core';
 
-export default function ChatBlock({chat, navigation, preventDefault}) {
+export default function ChatBlock({chat, preventDefault}) {
+  const navigation = useNavigation();
   const {
     type,
     lastMessage,

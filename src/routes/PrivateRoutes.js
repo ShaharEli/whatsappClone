@@ -31,7 +31,8 @@ const Tab = createMaterialTopTabNavigator();
 
 function TabNavigator({route}) {
   const {colors} = useTheme();
-  const {searching, preventDefault} = route?.params;
+  const searching = route?.params?.searching;
+  const preventDefault = route?.params?.preventDefault;
   return (
     <Tab.Navigator
       initialRouteName="Chats"

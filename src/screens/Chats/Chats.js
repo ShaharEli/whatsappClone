@@ -45,9 +45,7 @@ function Chats({navigation, route, searching, preventDefault}) {
         data={chats
           .filter(chat => !!chat?.name || !!chat.lastMessage)
           .sort(sortChat)}
-        renderItem={({item}) => (
-          <ChatBlock chat={item} {...{route, navigation, preventDefault}} />
-        )}
+        renderItem={({item}) => <ChatBlock chat={item} {...{preventDefault}} />}
         keyExtractor={item => item._id}
         ItemSeparatorComponent={() => (
           <Divider bg={colors.GREY} h={1} w={MAX_WIDTH * 0.9} />
