@@ -1,6 +1,6 @@
 import moment from 'moment';
 export const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const DAY_IN_CHAT = 'd in MMMM YYYY';
+const DAY_IN_CHAT = 'D in MMMM YYYY';
 const DAY_IN_CHATS = 'D.M.YYYY';
 const LAST_CONNECTED_START = 'last seen ';
 

@@ -29,19 +29,39 @@ export const useMessages = (
   const [error, setError] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [currentlyType, setCurrentlyType] = useState(false);
+  const [noMoreMessages, setNoMoreMessages] = useState(false);
 
   const {user} = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const {setChats, chats} = useData();
 
-  const fetchMessages = useCallback(async () => {
-    setLoading(true);
-    const messages = await getMessages(chat._id, chat.type === 'group');
-    if (!messages) setError(true);
-    else setMessages(messages);
-    setLoading(false);
-  }, [chat]);
+  const fetchMessages = useCallback(
+    async from => {
+      let addTheMessages = true;
+      if (loading || noMoreMessages) return;
+      if (!from) {
+        from = new Date().toISOString();
+        addTheMessages = false;
+      }
+      setLoading(true);
+      const messages = await getMessages(chat._id, chat.type === 'group', from);
+      if (!messages?.length) setNoMoreMessages(true);
+      if (!messages) setError(true);
+      else {
+        if (addTheMessages)
+          setMessages(prev => [
+            ...prev,
+            ...messages.filter(
+              ({_id}) => !prev.find(({_id: exitsingId}) => exitsingId === _id),
+            ),
+          ]);
+        else setMessages(messages);
+      }
+      setLoading(false);
+    },
+    [chat, loading, noMoreMessages],
+  );
 
   const onChangeText = useCallback(text => {
     if (text?.code) setInput(prev => prev + text.code);

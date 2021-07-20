@@ -4,11 +4,16 @@ import {getItem, setItem} from '../utils/storage.util';
 
 import securedFetch from './privateFetch';
 const BASE = '/chat';
+const MESSAGES_FETCH_LIMIT = 30;
 
-export const getMessages = async (chatId, isGroup = false) => {
+export const getMessages = async (
+  chatId,
+  isGroup = false,
+  from = new Date(),
+) => {
   try {
     const messages = await securedFetch(
-      `${BASE}/messages?chatId=${chatId}&isGroup=${isGroup}`,
+      `${BASE}/messages?chatId=${chatId}&isGroup=${isGroup}&limit=${MESSAGES_FETCH_LIMIT}&from=${from}`,
     );
     return messages;
   } catch ({error}) {

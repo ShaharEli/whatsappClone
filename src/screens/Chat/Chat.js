@@ -8,6 +8,9 @@ import {
   Image,
   BackHandler,
   Platform,
+  ActivityIndicator,
+  RefreshControl,
+  Text,
 } from 'react-native';
 import {createChat, getChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
@@ -46,6 +49,7 @@ export default function Chat({route, navigation}) {
     messages,
     isSending,
     loadingMsgs,
+    refetchMessages,
     setMedia,
     media,
     msgType,
@@ -163,7 +167,10 @@ export default function Chat({route, navigation}) {
         keyboardShouldPersistTaps="handled"
         ListFooterComponent={
           messages.length ? (
-            <DateBlock value={messages?.[messages.length - 1]?.createdAt} />
+            <>
+              {loadingMsgs && <ActivityIndicator size={100} />}
+              <DateBlock value={messages?.[messages.length - 1]?.createdAt} />
+            </>
           ) : null
         }
         scrollEventThrottle={16}
@@ -179,6 +186,14 @@ export default function Chat({route, navigation}) {
         style={{maxHeight: MAX_HEIGHT - headerHeight - 80}} //TODO change to const
         bounces={false}
         data={messages}
+        onEndReachedThreshold={0.1}
+        onEndReached={() => {
+          const from = messages[messages.length - 1].createdAt;
+          if (from) {
+            console.log(new Date(from).valueOf());
+            refetchMessages(new Date(from).valueOf());
+          }
+        }}
         keyExtractor={item => item._id}
         renderItem={({item, index}) => (
           <>
