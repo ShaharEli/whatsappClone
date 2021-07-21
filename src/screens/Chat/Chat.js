@@ -61,14 +61,20 @@ export default function Chat({route, navigation}) {
 
   const fetchChat = async () => {
     const fromRouteChat = route.params?.chat;
-    if (fromRouteChat) setChat(fromRouteChat);
+    if (fromRouteChat) {
+      setChat(fromRouteChat);
+      navigation.setParams({chat: fromRouteChat});
+    }
     if (route.params?.fromContacts && route.params?._id) {
       const chatExits = checkIfChatExists(chats, user, route.params);
-      if (chatExits) setChat(chatExits);
-      else {
+      if (chatExits) {
+        setChat(chatExits);
+        navigation.setParams({chat: chatExits});
+      } else {
         const newChat = await createChat([route.params._id], 'private');
         if (newChat) {
           setChats(prev => [newChat, ...prev]);
+          navigation.setParams({chat: newChat});
           setChat(newChat);
         }
       }
@@ -77,12 +83,18 @@ export default function Chat({route, navigation}) {
       if (route.params?.fromNotification && route.params?.chatId) {
         const chatExits = chats.find(({_id}) => _id === route.params?.chatId);
         chatData = chatExits;
-        if (chatExits) setChat(chatExits);
-        else {
+        if (chatExits) {
+          setChat(chatExits);
+          navigation.setParams({chat: chatExits});
+        } else {
           const chat = await getChat(route.params?.chatId);
           chatData = chat;
 
-          if (chat) setChat(chat);
+          if (chat) {
+            navigation.setParams({chat});
+
+            setChat(chat);
+          }
 
           // const fetchedChat = await
         }
@@ -103,7 +115,6 @@ export default function Chat({route, navigation}) {
         // TODO change according to route
       }
     }
-
     setLoading(false);
   };
   const handleBackBtn = () => {
@@ -190,7 +201,6 @@ export default function Chat({route, navigation}) {
         onEndReached={() => {
           const from = messages[messages.length - 1].createdAt;
           if (from) {
-            console.log(new Date(from).valueOf());
             refetchMessages(new Date(from).valueOf());
           }
         }}

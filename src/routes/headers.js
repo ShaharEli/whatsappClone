@@ -13,6 +13,8 @@ import {Image, Text, TextInput, View} from 'react-native';
 import {StackActions} from '@react-navigation/routers';
 import styles from './styles';
 
+export const noHeader = {headerShown: false};
+
 export const cameraScreenHeader = colors => ({
   title: '',
   tabBarIcon: ({focused}) => (
@@ -162,7 +164,9 @@ export const chatHeader = (
     userTyping,
     subHeader,
     usersTyping,
+    chat,
   } = route.params;
+
   const groupNames = subHeader
     ?.sort(({_id}) => (user._id === _id ? 1 : -1))
     .map(({firstName, lastName, _id}) =>
@@ -202,6 +206,9 @@ export const chatHeader = (
                 avatar,
                 name,
                 _id,
+                chat,
+                isActive,
+                lastConnected,
               })
             }
             style={[styles.headerRight(colors), styles.clickableTitle]}>

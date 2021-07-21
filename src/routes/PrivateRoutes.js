@@ -23,9 +23,13 @@ import {
   contactsHeader,
   groupMetaDataHeader,
   newGroupHeader,
+  newProfileHeader,
+  noHeader,
   tabBarOptions,
 } from './headers';
 import Location from '../screens/Location/Location';
+import EditGroup from '../screens/EditGroup/EditGroup';
+import Media from '../screens/Media/Media';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
@@ -84,10 +88,16 @@ export default function PrivateRoutes() {
           newGroupHeader({navigation, route}, rootStyles, colors)
         }
       />
+      <Stack.Screen name="Media" component={Media} />
       <Stack.Screen name="Broadcast" component={Broadcast} />
       <Stack.Screen name="FavoriteMsgs" component={FavoriteMsgs} />
-      <Stack.Screen name="ProfileView" component={ProfileView} />
+      <Stack.Screen
+        name="ProfileView"
+        component={ProfileView}
+        options={() => noHeader}
+      />
       <Stack.Screen name="Location" component={Location} />
+      <Stack.Screen name="EditGroup" component={EditGroup} />
       <Stack.Screen
         name="Chat"
         component={Chat}

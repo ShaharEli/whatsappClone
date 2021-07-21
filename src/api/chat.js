@@ -102,3 +102,56 @@ export const getChat = async id => {
     return false;
   }
 };
+
+export const editChat = async (id, payload) => {
+  try {
+    if (typeof payload !== 'object' || !id) return false;
+    const chat = await securedFetch(`${BASE}/chat/${id}`, 'PUT', payload);
+    return chat;
+  } catch ({error}) {
+    Snackbar.show({
+      text: error,
+      duration: Snackbar.LENGTH_SHORT,
+    });
+    logger.error(error);
+    return false;
+  }
+};
+export const getStarredMessages = async (id, withMessages = false) => {
+  try {
+    if (!id) return false;
+    const data = await securedFetch(
+      `${BASE}/starred-messages?chatId=${id}&withMessages=${withMessages}`,
+    );
+    if (withMessages) {
+      return data;
+    } else {
+      return data.count;
+    }
+  } catch ({error}) {
+    logger.error(error);
+    return false;
+  }
+};
+
+export const getParticipants = async id => {
+  try {
+    if (!id) return false;
+    const participants = await securedFetch(`${BASE}/participants/${id}`);
+    return participants;
+  } catch ({error}) {
+    logger.error(error);
+    return false;
+  }
+};
+
+export const getProfile = async id => {
+  try {
+    if (!id) return false;
+    const user = await securedFetch(`${BASE}/user/${id}`);
+    return user;
+  } catch ({error}) {
+    logger.error(error);
+    return false;
+  }
+};
