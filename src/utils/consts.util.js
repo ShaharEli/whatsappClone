@@ -25,6 +25,7 @@ export const FLOATING_BTN_SIZE = 70;
 
 export const LOGS_TO_IGNORE = [
   'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
+  'VirtualizedLists should never be nested inside plain ScrollViews with',
   'If you want to use Reanimated 2 ',
   'Sending `onAnimatedValueUpdate` with no listeners registered',
   '%s: Calling `getNode()` on the ref of an Animated component is no longer necessary.',

@@ -13,7 +13,7 @@ import {useTheme} from '../providers/StyleProvider';
 import SeenIndicator from './SeenIndicator';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import {RectButton} from 'react-native-gesture-handler';
-import {MAX_WIDTH} from '../utils';
+import {MAX_WIDTH, navigate} from '../utils';
 import Entypo from 'react-native-vector-icons/Entypo';
 
 function MessageBlock({
@@ -102,6 +102,11 @@ function MessageBlock({
         <>
           {messageCreator && (
             <Text
+              onPress={() =>
+                navigate('ProfileView', {
+                  profileId: by?._id || by,
+                })
+              }
               style={[
                 rootStyles.textColor(participantsColors[by?._id || by]),
                 styles.msgText,

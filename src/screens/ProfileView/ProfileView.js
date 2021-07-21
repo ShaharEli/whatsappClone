@@ -17,7 +17,13 @@ import {
 import {useTheme} from '../../providers/StyleProvider';
 import {Divider, ScreenWrapper} from '../../styles/styleComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {checkIfChatExists, isIphoneWithNotch, MAX_WIDTH} from '../../utils';
+import {
+  assets,
+  checkIfChatExists,
+  getChatDataFormatted,
+  isIphoneWithNotch,
+  MAX_WIDTH,
+} from '../../utils';
 import If from '../../components/If';
 import Feather from 'react-native-vector-icons/Feather';
 import {useAuth} from '../../providers/AuthProvider';
@@ -28,10 +34,10 @@ import {
   getStarredMessages,
 } from '../../api';
 import {useData} from '../../providers/DataProvider';
-import {useHeaderHeight} from '@react-navigation/stack';
+import Contact from '../../components/Contact';
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 const IMAGE_HEIGHT = MAX_WIDTH / 2;
-
+//TODO add last active
 export default function ProfileView({route, navigation}) {
   const {rootStyles, colors} = useTheme();
   const avatar = route?.params?.avatar;
@@ -45,38 +51,53 @@ export default function ProfileView({route, navigation}) {
   const [starredCount, setStarredCount] = useState(null);
   const [loadingParticipants, setLoadingParticipants] = useState(isGroup);
   const [participants, setParticipants] = useState([]);
+  const [activeParticipant, setActiveParticipant] = useState(null);
   const {setChats, chats} = useData();
   const [withNotifications, setWithNotifications] = useState(
     !chat?.usersWithoutNotifications?.includes(user._id),
   );
-
   const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    (async () => {
-      const profile = await getProfile(profileId);
-    })();
     if (!chat?._id) {
       if (!profileId) return;
       const existedChat = checkIfChatExists(chats, user, {_id: profileId});
       if (existedChat) {
+        const {isActive, lastConnected, chatImage, chatName} =
+          getChatDataFormatted(existedChat, user._id);
+        navigation.setParams({
+          avatar: chatImage,
+          name: chatName,
+        });
         setChat(existedChat);
       } else {
         (async () => {
           const profile = await getProfile(profileId);
+          if (profile) {
+            if (profile.avatar) {
+              navigation.setParams({avatar: {uri: profile.avatar}});
+            } else {
+              navigation.setParams({avatar: assets.profilePlaceholder});
+            }
+            navigation.setParams({
+              name: `${profile.firstName} ${profile.lastName}`,
+            });
+          }
         })();
       }
+    } else {
+      (async () => {
+        const count = await getStarredMessages(chat._id);
+        if (count === false) return;
+        setStarredCount(count);
+        if (chat?.type !== 'private') {
+          const fetchedParticipants = await getParticipants(chat._id);
+          fetchedParticipants && setParticipants(fetchedParticipants);
+          setLoadingParticipants(false);
+        }
+      })();
     }
-    (async () => {
-      const count = await getStarredMessages(chat._id);
-      if (count === false) return;
-      setStarredCount(count);
-      if (chat?.type !== 'private') {
-        const fetchedParticipants = await getParticipants(chat._id);
-        fetchedParticipants && setParticipants(fetchedParticipants);
-        setLoadingParticipants(false);
-      }
-    })();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat?._id]);
 
@@ -187,7 +208,7 @@ export default function ProfileView({route, navigation}) {
             {useNativeDriver: false},
           )}>
           <If
-            cond={!!chat || !!name}
+            cond={!!name}
             message="Error not found"
             onPress={() => navigation.goBack()}>
             <AnimatedImage
@@ -212,25 +233,29 @@ export default function ProfileView({route, navigation}) {
               </TouchableOpacity>
             </If>
             <Divider m={10} />
-            <View
-              style={[
-                styles.block(colors),
-                rootStyles.flexRow,
-                rootStyles.alignCenter,
-                rootStyles.spaceBetween,
-                rootStyles.px4,
-              ]}>
-              <Text style={rootStyles.font(colors)}>Silent notifications</Text>
-              <Switch
-                value={withNotifications}
-                onValueChange={switchNotification}
-              />
-            </View>
-            <Divider bg={colors.GREY} h={1} />
+            <If cond={profileId !== user._id}>
+              <View
+                style={[
+                  styles.block(colors),
+                  rootStyles.flexRow,
+                  rootStyles.alignCenter,
+                  rootStyles.spaceBetween,
+                  rootStyles.px4,
+                ]}>
+                <Text style={rootStyles.font(colors)}>
+                  Silent notifications
+                </Text>
+                <Switch
+                  value={withNotifications}
+                  onValueChange={switchNotification}
+                />
+              </View>
+              <Divider bg={colors.GREY} h={1} />
+            </If>
             <TouchableHighlight
               underlayColor={colors.HIGHLIGHT}
               onPress={() => {
-                navigation.navigate('media', {chat});
+                navigation.navigate('Media', {chat});
               }}
               style={[
                 styles.block(colors),
@@ -261,12 +286,29 @@ export default function ProfileView({route, navigation}) {
                 )}
               </>
             </TouchableHighlight>
-            <Divider m={10} />
             <If cond={isGroup}>
+              <Divider bg={colors.GREY} h={1} />
               <FlatList
+                style={rootStyles.backgroundColor(colors.LIGHT_BG)}
+                bounces={false}
                 ListEmptyComponent={
                   loadingParticipants ? <ActivityIndicator /> : null
                 }
+                data={participants}
+                keyExtractor={p => p._id}
+                ItemSeparatorComponent={() => (
+                  <Divider bg={colors.GREY} h={1} />
+                )}
+                renderItem={({item}) => (
+                  <Contact
+                    {...item}
+                    bg={colors.LIGHT_BG}
+                    isAdmin={chat?.admins?.includes(item._id)}
+                    onPress={() =>
+                      item._id === user._id ? null : setActiveParticipant(item)
+                    }
+                  />
+                )}
               />
             </If>
           </If>

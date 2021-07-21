@@ -94,7 +94,7 @@ export default function PrivateRoutes() {
       <Stack.Screen
         name="ProfileView"
         component={ProfileView}
-        options={() => noHeader}
+        options={() => ({...noHeader, unmountOnBlur: true})}
       />
       <Stack.Screen name="Location" component={Location} />
       <Stack.Screen name="EditGroup" component={EditGroup} />
