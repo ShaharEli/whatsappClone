@@ -9,6 +9,8 @@ export default function UnderlineTextField({
   placeholder,
   onFocus,
   value,
+  addedStyle = {},
+  characterRestriction = undefined,
 }) {
   const {rootStyles, colors} = useTheme();
   const inputRef = useRef('');
@@ -24,8 +26,10 @@ export default function UnderlineTextField({
         containerStyle || {
           ...rootStyles.width(0.7),
           ...rootStyles.maxWidth(300),
+          ...addedStyle,
         }
       }
+      characterRestriction={characterRestriction}
       ref={inputRef}
       onChangeText={onChangeText}
       placeholderTextColor={colors.GREY_LIGHT}

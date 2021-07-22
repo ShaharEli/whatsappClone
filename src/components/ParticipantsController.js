@@ -15,16 +15,21 @@ import {useTheme} from '../../providers/StyleProvider';
 import {ScreenWrapper} from '../../styles/styleComponents';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Snackbar from 'react-native-snackbar';
+import If from './If';
+import Searchbar from './Searchbar';
+import {useMemo} from 'react';
 
-export default function NewGroup({navigation, route}) {
+function ParticipantsController({navigation, route, newGroup, newStep}) {
   const {contacts, contactsLoading, refetchContacts} = useContacts();
   const {rootStyles, colors} = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState([]);
   useEffect(() => {
-    navigation.setParams({
-      selectedContactsNum: selectedContacts.length,
-    });
+    if (newGroup) {
+      navigation.setParams({
+        selectedContactsNum: selectedContacts.length,
+      });
+    }
   }, [selectedContacts]);
 
   const onContactPressed = (selected, contact) => {
@@ -35,6 +40,9 @@ export default function NewGroup({navigation, route}) {
   };
 
   const navigateToNextStep = async () => {
+    if (!newGroup && newStep) {
+      return newStep(selectedContacts);
+    }
     if (!selectedContacts.length) {
       return Snackbar.show({
         text: 'At least one contact need to be selected',
@@ -45,9 +53,33 @@ export default function NewGroup({navigation, route}) {
       selectedContacts,
     });
   };
-
+  const filterData = ({firstName, lastName, phone}, searchValue) =>
+    [firstName, lastName, phone].some(field =>
+      field.toLowerCase().includes(searchValue.toLowerCase()),
+    );
   const searching = route?.params?.searching;
   const searchValue = route?.params?.searchValue;
+
+  const data = useMemo(() => {
+    if (newGroup) {
+      if (searching && searchValue) {
+        return contacts.filter(({firstName, lastName, phone}) =>
+          filterData({firstName, lastName, phone}, searchValue),
+        );
+      } else {
+        return contacts;
+      }
+    }
+    if (isSearching && searchVal) {
+      return contacts.filter(({firstName, lastName, phone}) =>
+        filterData({firstName, lastName, phone}, searchVal),
+      );
+    }
+    return contacts;
+  }, [contacts, searchValue, searching, searchVal, isSearching, newGroup]);
+
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchVal, setSearchVal] = useState('');
 
   useEffect(() => {
     if (!contactsLoading) navigation.setParams({contactsNum: contacts.length});
@@ -61,6 +93,14 @@ export default function NewGroup({navigation, route}) {
         </View>
       ) : (
         <>
+          <If cond={!newGroup}>
+            <Searchbar
+              setSearchVal={setSearchVal}
+              setIsSearching={setIsSearching}
+              fullArr={contacts}
+              searchVal={searchVal}
+            />
+          </If>
           <SelectedContacts
             {...{
               selectedContacts,
@@ -84,15 +124,7 @@ export default function NewGroup({navigation, route}) {
               refetchContacts(setRefreshing);
             }}
             refreshing={refreshing}
-            data={
-              searching && searchValue
-                ? contacts.filter(({firstName, lastName, phone}) =>
-                    [firstName, lastName, phone].some(field =>
-                      field.toLowerCase().includes(searchValue.toLowerCase()),
-                    ),
-                  )
-                : contacts
-            }
+            data={data}
             keyExtractor={({_id}) => _id}
             renderItem={({item: contact}) => (
               <Contact
@@ -116,4 +148,4 @@ export default function NewGroup({navigation, route}) {
   );
 }
 
-const styles = StyleSheet.create({});
+export default React.memo(ParticipantsController);

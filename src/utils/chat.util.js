@@ -1,4 +1,5 @@
 import {Platform} from 'react-native';
+import {editChat} from '../api';
 import {assets} from './assets.util';
 import {pickRandomListValue} from './formatters.util';
 
@@ -210,3 +211,35 @@ export const getType = (setCurrentlyType, usersTyping, returnFalse) => {
 
 export const getOtherParticipant = ({participants}, {_id}) =>
   participants.find(participant => participant._id !== _id);
+
+export const isAdmin = (chat, userToCheck) => {
+  if (!chat || chat?.type !== 'group' || !chat?.name || !chat?.participants)
+    return false;
+  return !!chat?.admins?.find(
+    admin => admin?._id === userToCheck._id || admin === userToCheck._id,
+  );
+};
+
+export const isMainAdmin = (chat, userToCheck) => {
+  if (!chat || chat?.type !== 'group' || !chat?.name || !chat?.participants)
+    return false;
+  return chat?.mainAdmin === userToCheck._id;
+};
+
+export const updateChat = async (chat, setChats, payload) => {
+  const newChat = await editChat(chat?._id, payload);
+  if (newChat) {
+    setChats(prev => {
+      return prev.map(c => {
+        if (c._id === newChat?._id) {
+          return {
+            ...c,
+            usersWithoutNotifications: newChat.usersWithoutNotifications,
+          };
+        }
+        return c;
+      });
+    });
+    return true;
+  }
+};

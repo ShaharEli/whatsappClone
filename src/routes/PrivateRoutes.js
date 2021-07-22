@@ -6,7 +6,6 @@ import Camera from '../screens/Camera/Camera';
 import Stories from '../screens/Stories/Stories';
 import Calls from '../screens/Calls/Calls';
 import {useTheme} from '../providers/StyleProvider';
-import NewGroup from '../screens/NewGroup/NewGroup';
 import Broadcast from '../screens/Broadcast/Broadcast';
 import FavoriteMsgs from '../screens/FavoriteMsgs/FavoriteMsgs';
 import Contacts from '../screens/Contacts/Contacts';
@@ -30,6 +29,7 @@ import {
 import Location from '../screens/Location/Location';
 import EditGroup from '../screens/EditGroup/EditGroup';
 import Media from '../screens/Media/Media';
+import ParticipantsController from '../components/ParticipantsController';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
@@ -85,11 +85,15 @@ export default function PrivateRoutes() {
       />
       <Stack.Screen
         name="NewGroup"
-        component={NewGroup}
         options={({navigation, route}) =>
           newGroupHeader({navigation, route}, rootStyles, colors)
-        }
-      />
+        }>
+        {({navigation, route}) => {
+          return (
+            <ParticipantsController {...{newGroup: true, navigation, route}} />
+          );
+        }}
+      </Stack.Screen>
       <Stack.Screen name="Media" component={Media} />
       <Stack.Screen name="Broadcast" component={Broadcast} />
       <Stack.Screen name="FavoriteMsgs" component={FavoriteMsgs} />

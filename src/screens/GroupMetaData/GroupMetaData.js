@@ -99,6 +99,7 @@ export default function GroupMetaData({route, navigation}) {
             onFocus={() => setEkbShown(false)}
             value={groupName}
             onChangeText={onChangeText}
+            characterRestriction={24}
           />
           <TouchableOpacity
             onPress={() => setEkbShown(prev => !prev)}

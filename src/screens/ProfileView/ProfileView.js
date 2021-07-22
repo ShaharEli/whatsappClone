@@ -14,9 +14,9 @@ import {
   StatusBar,
   ActivityIndicator,
   Modal,
+  Platform,
 } from 'react-native';
 import ContactsHandler from 'react-native-contacts';
-
 import {useTheme} from '../../providers/StyleProvider';
 import {Divider, ScreenWrapper} from '../../styles/styleComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -24,8 +24,11 @@ import {
   assets,
   checkIfChatExists,
   getChatDataFormatted,
+  isAdmin,
   isIphoneWithNotch,
+  isMainAdmin,
   MAX_WIDTH,
+  updateChat,
 } from '../../utils';
 import If from '../../components/If';
 import Feather from 'react-native-vector-icons/Feather';
@@ -39,6 +42,9 @@ import {
 import {useData} from '../../providers/DataProvider';
 import Contact from '../../components/Contact';
 import {useContacts} from '../../hooks';
+import UnderlineTextField from '../../components/UnderlineTextField';
+import ParticipantsList from './ParticipantsList';
+import Searchbar from '../../components/Searchbar';
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 const IMAGE_HEIGHT = MAX_WIDTH / 2;
 //TODO add last active
@@ -48,14 +54,17 @@ export default function ProfileView({route, navigation}) {
   const name = route?.params?.name;
   const chatFromRoute = route?.params?.chat;
   const [chat, setChat] = useState(chatFromRoute ? chatFromRoute : null);
-  const profileId = route?.params?.profileId || '60ebf5206d150e338a00e56d'; //TODO get existing chats or fetch user data (in case not in chats)
+  const profileId = route?.params?.profileId; //TODO get existing chats or fetch user data (in case not in chats)
   const isGroup = chat?.type && chat?.type !== 'private';
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
   const [starredCount, setStarredCount] = useState(null);
   const [loadingParticipants, setLoadingParticipants] = useState(isGroup);
   const [participants, setParticipants] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [filteredParticipants, setFilteredParticipants] = useState([]);
   const [activeParticipant, setActiveParticipant] = useState(null);
+  const [searchVal, setSearchVal] = useState('');
   const {setChats, chats} = useData();
   const [withNotifications, setWithNotifications] = useState(
     !chat?.usersWithoutNotifications?.includes(user._id),
@@ -65,8 +74,10 @@ export default function ProfileView({route, navigation}) {
   const {contacts, refetchContacts} = useContacts();
 
   useEffect(() => {
-    if (!chat?._id) {
-      if (!profileId) return;
+    if (profileId) {
+      setChat(null);
+      setSearchVal('');
+      setIsSearching(false);
       const existedChat = checkIfChatExists(chats, user, {_id: profileId});
       if (existedChat) {
         const {isActive, lastConnected, chatImage, chatName} =
@@ -98,14 +109,17 @@ export default function ProfileView({route, navigation}) {
         setStarredCount(count);
         if (chat?.type !== 'private') {
           const fetchedParticipants = await getParticipants(chat._id);
-          fetchedParticipants && setParticipants(fetchedParticipants);
+          if (fetchedParticipants) {
+            setFilteredParticipants(fetchedParticipants);
+            setParticipants(fetchedParticipants);
+          }
           setLoadingParticipants(false);
         }
       })();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat?._id]);
+  }, [chat?._id, profileId]);
 
   const switchNotification = useCallback(
     async val => {
@@ -130,22 +144,6 @@ export default function ProfileView({route, navigation}) {
     },
     [loading, setChats, chat?._id],
   );
-
-  const isAdmin = useMemo(() => {
-    if (!chat || chat?.type !== 'group' || !chat?.name || !chat?.participants)
-      return;
-    return !!chat?.participants?.find(
-      admin => admin?._id === user._id || admin === user._id,
-    );
-  }, [chat, user]);
-
-  const isMainAdmin = useMemo(() => {
-    if (!chat || chat?.type !== 'group' || !chat?.name || !chat?.participants)
-      return;
-    return !!chat?.mainAdmin === user._id;
-  }, [chat, user]);
-
-  // const translateY = scrollY.interpolate({inputRange: [], outputRange: []});
 
   const editGroup = target => {
     navigation.navigate('EditGroup', {chat, target});
@@ -177,7 +175,7 @@ export default function ProfileView({route, navigation}) {
     outputRange: ['transparent', colors.HEADER],
     extrapolate: 'clamp',
   });
-  // route.params?.fromContacts && route.params?._id
+
   const getActiveParticipantsOptions = useCallback(() => {
     if (!activeParticipant) return [];
     const arrOfOpts = [
@@ -187,6 +185,15 @@ export default function ProfileView({route, navigation}) {
           navigation.navigate('Chat', {
             fromContacts: true,
             _id: activeParticipant._id,
+          });
+        },
+      },
+      {
+        label: `Show ${activeParticipant.firstName} ${activeParticipant.lastName}`,
+        onPress: () => {
+          setActiveParticipant(null);
+          navigation.navigate('ProfileView', {
+            profileId: activeParticipant._id,
           });
         },
       },
@@ -204,11 +211,104 @@ export default function ProfileView({route, navigation}) {
           if (isAdded) {
             await refetchContacts();
           }
+          setActiveParticipant(null);
         },
       });
     }
+    console.log(
+      isMainAdmin(chat, user),
+      isAdmin(chat, activeParticipant),
+      user._id,
+      chat.mainAdmin,
+    );
+    if (isMainAdmin(chat, user)) {
+      if (isAdmin(chat, activeParticipant)) {
+        arrOfOpts.push({
+          label: `Make ${activeParticipant.firstName} ${activeParticipant.lastName} not admin`,
+          onPress: async () => {
+            const {_id} = activeParticipant;
+            setActiveParticipant(null);
+            const success = await updateChat(chat, setChats, {
+              removeAdmin: activeParticipant._id,
+            });
+            if (success) {
+              setChat(prev => ({
+                ...prev,
+                admins: prev.admins.filter(a => a !== _id),
+              }));
+            }
+          },
+        });
+      }
+    }
+    if (isAdmin(chat, user)) {
+      if (!isAdmin(chat, activeParticipant)) {
+        arrOfOpts.push({
+          label: `Make ${activeParticipant.firstName} ${activeParticipant.lastName} admin`,
+          onPress: async () => {
+            const {_id} = activeParticipant;
+            setActiveParticipant(null);
+            const success = await updateChat(chat, setChats, {
+              addAdmin: activeParticipant._id,
+            });
+            if (success) {
+              setChat(prev => ({...prev, admins: [...prev.admins, _id]}));
+            }
+          },
+        });
+      }
+      if (!isMainAdmin(chat, activeParticipant)) {
+        arrOfOpts.push({
+          label: `Remove ${activeParticipant.firstName} ${activeParticipant.lastName}`,
+          onPress: async () => {
+            setActiveParticipant(null);
+            const success = await updateChat(chat, setChats, {
+              removeParticipant: activeParticipant._id,
+            });
+            if (success) {
+            }
+          },
+        });
+      }
+    }
     return arrOfOpts;
-  }, [activeParticipant, isAdmin, contacts]);
+  }, [
+    activeParticipant,
+    user,
+    contacts,
+    chat,
+    setChats,
+    refetchContacts,
+    navigation,
+  ]);
+
+  if (isSearching) {
+    return (
+      <ScreenWrapper>
+        <SafeAreaView style={rootStyles.flex1}>
+          <Searchbar
+            setSearchVal={setSearchVal}
+            setIsSearching={setIsSearching}
+            setFilteredArr={setFilteredParticipants}
+            fullArr={participants}
+            searchVal={searchVal}
+          />
+          <ParticipantsList
+            {...{
+              loadingParticipants,
+              participants,
+              setIsSearching,
+              filteredParticipants,
+              isSearching,
+              setActiveParticipant,
+              chat,
+              noBackground: true,
+            }}
+          />
+        </SafeAreaView>
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -346,24 +446,20 @@ export default function ProfileView({route, navigation}) {
             </TouchableHighlight>
             <If cond={isGroup}>
               <Divider bg={colors.GREY} h={1} />
-              <FlatList
-                style={rootStyles.backgroundColor(colors.LIGHT_BG)}
-                bounces={false}
-                ListEmptyComponent={
-                  loadingParticipants ? <ActivityIndicator /> : null
-                }
-                data={participants}
-                keyExtractor={p => p._id}
-                renderItem={({item}) => (
-                  <Contact
-                    {...item}
-                    bg={colors.LIGHT_BG}
-                    isAdmin={chat?.admins?.includes(item._id)}
-                    disabled={item._id === user._id}
-                    onPress={() => setActiveParticipant(item)}
-                  />
-                )}
+              <ParticipantsList
+                {...{
+                  loadingParticipants,
+                  participants,
+                  setIsSearching,
+                  filteredParticipants,
+                  isSearching,
+                  setActiveParticipant,
+                  chat,
+                }}
               />
+              <If cond={isGroup && isAdmin(chat, user)}>
+                <Text>s</Text>
+              </If>
             </If>
           </If>
         </Animated.ScrollView>
