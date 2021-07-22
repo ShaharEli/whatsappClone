@@ -5,9 +5,12 @@ import {useAuth} from '../providers/AuthProvider';
 import {useData} from '../providers/DataProvider';
 import {
   changeConnectedState,
+  getOtherParticipant,
   getType,
   handleNewMessage,
   handleSeen,
+  rsa,
+  splitterForRSA,
 } from '../utils';
 
 let timeout;
@@ -100,12 +103,27 @@ export const useMessages = (
     const chatId = chat?._id;
     if (!chatId) return;
     setIsSending(true);
+    // let encryptedMessage = input;
+    // let encryptedMedia = media;
+    // if (chat.type === 'private') {
+    //   //e2e encryption available only in private chats to prevent duplicates
+    //   console.log(Object.keys(getOtherParticipant(chat, user)));
+    //   rsa.setPublicString(getOtherParticipant(chat, user).publicKey);
+    //   if (encryptedMessage) {
+    //     const text = splitterForRSA(encryptedMessage);
+    //     encryptedMessage = text.map(chunk => rsa.encrypt(chunk));
+    //   }
+    //   if (encryptedMedia) {
+    //     const newMedia = splitterForRSA(encryptedMedia);
+    //     encryptedMessage = newMedia.map(chunk => rsa.encrypt(chunk));
+    //   }
+    // }
     const message = await sendMessage(
       {
         chatId,
         type: msgType,
         media,
-        message: input,
+        message,
       },
       socketController,
     );

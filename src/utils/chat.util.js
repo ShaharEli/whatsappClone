@@ -207,3 +207,6 @@ export const getType = (setCurrentlyType, usersTyping, returnFalse) => {
   });
   return res;
 };
+
+export const getOtherParticipant = ({participants}, {_id}) =>
+  participants.find(participant => participant._id !== _id);

@@ -13,7 +13,10 @@ import {
   FlatList,
   StatusBar,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
+import ContactsHandler from 'react-native-contacts';
+
 import {useTheme} from '../../providers/StyleProvider';
 import {Divider, ScreenWrapper} from '../../styles/styleComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -35,6 +38,7 @@ import {
 } from '../../api';
 import {useData} from '../../providers/DataProvider';
 import Contact from '../../components/Contact';
+import {useContacts} from '../../hooks';
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 const IMAGE_HEIGHT = MAX_WIDTH / 2;
 //TODO add last active
@@ -57,6 +61,8 @@ export default function ProfileView({route, navigation}) {
     !chat?.usersWithoutNotifications?.includes(user._id),
   );
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const {contacts, refetchContacts} = useContacts();
 
   useEffect(() => {
     if (!chat?._id) {
@@ -133,6 +139,12 @@ export default function ProfileView({route, navigation}) {
     );
   }, [chat, user]);
 
+  const isMainAdmin = useMemo(() => {
+    if (!chat || chat?.type !== 'group' || !chat?.name || !chat?.participants)
+      return;
+    return !!chat?.mainAdmin === user._id;
+  }, [chat, user]);
+
   // const translateY = scrollY.interpolate({inputRange: [], outputRange: []});
 
   const editGroup = target => {
@@ -165,9 +177,55 @@ export default function ProfileView({route, navigation}) {
     outputRange: ['transparent', colors.HEADER],
     extrapolate: 'clamp',
   });
+  // route.params?.fromContacts && route.params?._id
+  const getActiveParticipantsOptions = useCallback(() => {
+    if (!activeParticipant) return [];
+    const arrOfOpts = [
+      {
+        label: `Send message to ${activeParticipant.firstName} ${activeParticipant.lastName}`,
+        onPress: () => {
+          navigation.navigate('Chat', {
+            fromContacts: true,
+            _id: activeParticipant._id,
+          });
+        },
+      },
+    ];
+    if (contacts.findIndex(c => c._id === activeParticipant._id) === -1) {
+      arrOfOpts.push({
+        label: 'Add to contacts',
+        onPress: async () => {
+          const isAdded = await ContactsHandler.openContactForm({
+            displayName: `${activeParticipant.firstName} ${activeParticipant.lastName}`,
+            familyName: activeParticipant.lastName,
+            givenName: activeParticipant.firstName,
+            phoneNumbers: [{label: 'mobile', number: activeParticipant.phone}],
+          });
+          if (isAdded) {
+            await refetchContacts();
+          }
+        },
+      });
+    }
+    return arrOfOpts;
+  }, [activeParticipant, isAdmin, contacts]);
 
   return (
     <ScreenWrapper>
+      <Modal visible={!!activeParticipant}>
+        <TouchableOpacity
+          style={[rootStyles.flex1, rootStyles.bg(colors), rootStyles.box]}
+          onPress={() => setActiveParticipant(null)}>
+          <TouchableOpacity>
+            {getActiveParticipantsOptions().map(({label, onPress}) => (
+              <TouchableOpacity onPress={onPress} key={label}>
+                <Text>{label}</Text>
+              </TouchableOpacity>
+            ))}
+            <Text>jo</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
       <SafeAreaView style={rootStyles.flex1}>
         <Ionicons
           name="arrow-back"
@@ -296,17 +354,13 @@ export default function ProfileView({route, navigation}) {
                 }
                 data={participants}
                 keyExtractor={p => p._id}
-                ItemSeparatorComponent={() => (
-                  <Divider bg={colors.GREY} h={1} />
-                )}
                 renderItem={({item}) => (
                   <Contact
                     {...item}
                     bg={colors.LIGHT_BG}
                     isAdmin={chat?.admins?.includes(item._id)}
-                    onPress={() =>
-                      item._id === user._id ? null : setActiveParticipant(item)
-                    }
+                    disabled={item._id === user._id}
+                    onPress={() => setActiveParticipant(item)}
                   />
                 )}
               />

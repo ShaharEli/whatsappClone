@@ -12,3 +12,4 @@ export * from './chat.util';
 export * from './classes.util';
 export * from './colors.util';
 export * from './attachments.util';
+export * from './encryption.util';

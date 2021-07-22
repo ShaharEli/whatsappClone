@@ -17,10 +17,12 @@ export default function Contact({
   selected,
   bg,
   isAdmin,
+  disabled = false,
 }) {
   const {colors, rootStyles} = useTheme();
   return (
     <TouchableOpacity
+      disabled={disabled}
       onPress={() =>
         onPress
           ? onPress(!selected, {
@@ -94,6 +96,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: colors.GREY_LIGHT,
+    padding: 1,
   }),
   name: colors => ({
     color: colors.font,

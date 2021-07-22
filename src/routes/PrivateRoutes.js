@@ -52,7 +52,9 @@ function TabNavigator({route}) {
         options={() => ({
           title: 'Chats',
         })}>
-        {() => <Chats {...{searching, preventDefault}} />}
+        {({navigation, route}) => {
+          return <Chats {...{searching, preventDefault, navigation, route}} />;
+        }}
       </Tab.Screen>
       <Tab.Screen name="Status" component={Stories} />
       <Tab.Screen name="Calls" component={Calls} />

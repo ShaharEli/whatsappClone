@@ -1,6 +1,6 @@
 import {Platform} from 'react-native';
 import Snackbar from 'react-native-snackbar';
-import {logger} from '../utils';
+import {generateRSAKey, logger} from '../utils';
 import {getItem, setItem} from '../utils/storage.util';
 import {publicFetch} from './publicFetch';
 
@@ -45,10 +45,12 @@ export const loginByPass = async (phone, password) => {
       'POST',
       {phone, password},
     );
+
     await setItem('accessToken', accessToken);
     await setItem('refreshToken', refreshToken);
     await setItem('currUser', user);
-    return user;
+    const privateKey = await getItem(`privateKey@${user._id}`);
+    return {...user, privateKey};
   } catch ({error}) {
     Snackbar.show({
       text: error,
@@ -61,15 +63,18 @@ export const loginByPass = async (phone, password) => {
 
 export const register = async payload => {
   try {
+    const [privateKey, publicKey] = generateRSAKey();
     const {user, accessToken, refreshToken} = await publicFetch(
       '/auth/register',
       'POST',
-      payload,
+      {...payload, publicKey},
     );
+    await setItem(`privateKey@${user._id}`, privateKey);
     await setItem('accessToken', accessToken);
     await setItem('refreshToken', refreshToken);
     await setItem('currUser', user);
-    return user;
+
+    return {...user, privateKey};
   } catch ({error}) {
     Snackbar.show({
       text: error,
@@ -83,6 +88,7 @@ export const register = async payload => {
 export const loginWithToken = async () => {
   try {
     const refreshToken = await getRefreshOrThrow();
+
     const {accessToken, user} = await publicFetch(
       '/auth/login-with-token',
       'POST',
@@ -90,7 +96,8 @@ export const loginWithToken = async () => {
     );
     await setItem('accessToken', accessToken);
     await setItem('currUser', user);
-    return user;
+    const privateKey = await getItem(`privateKey@${user._id}`);
+    return {...user, privateKey};
   } catch ({message}) {
     // logger.warn(message); //TODO uncomment
     return false;

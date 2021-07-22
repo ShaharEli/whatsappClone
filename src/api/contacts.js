@@ -11,7 +11,13 @@ export const searchInContacts = async contacts => {
         contacts,
       },
     );
-    return foundContacts;
+    const filteredContacts = [];
+    foundContacts.forEach(contact => {
+      if (!filteredContacts.find(c => c._id === contact._id)) {
+        filteredContacts.push(contact);
+      }
+    });
+    return filteredContacts;
   } catch ({error}) {
     logger.error(error, 'her');
     return [];
