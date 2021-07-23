@@ -20,6 +20,7 @@ import {
   cameraScreenHeader,
   chatHeader,
   contactsHeader,
+  editGroupHeader,
   groupMetaDataHeader,
   newGroupHeader,
   newProfileHeader,
@@ -103,7 +104,13 @@ export default function PrivateRoutes() {
         options={() => ({...noHeader, unmountOnBlur: true})}
       />
       <Stack.Screen name="Location" component={Location} />
-      <Stack.Screen name="EditGroup" component={EditGroup} />
+      <Stack.Screen
+        name="EditGroup"
+        component={EditGroup}
+        options={({navigation, route}) =>
+          editGroupHeader({navigation, route}, colors, rootStyles)
+        }
+      />
       <Stack.Screen
         name="Chat"
         component={Chat}

@@ -281,3 +281,21 @@ export const contactsHeader = (
     </View>
   ),
 });
+
+export const editGroupHeader = ({navigation, route}, colors, rootStyles) => ({
+  ...baseHeader(colors),
+  headerLeft: () => (
+    <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
+      <Ionicons
+        name="arrow-back"
+        color={colors.INACTIVE_TINT}
+        size={30}
+        onPress={() => navigation.goBack()}
+        style={rootStyles.mx3}
+      />
+      <Text style={[rootStyles.me2, styles.headerRight(colors)]}>
+        Edit group {route.params.target}
+      </Text>
+    </View>
+  ),
+});
