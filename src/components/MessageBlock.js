@@ -15,6 +15,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import {RectButton} from 'react-native-gesture-handler';
 import {MAX_WIDTH, navigate} from '../utils';
 import Entypo from 'react-native-vector-icons/Entypo';
+import {useNavigation} from '@react-navigation/native';
 
 function MessageBlock({
   content,
@@ -30,6 +31,7 @@ function MessageBlock({
 }) {
   const {user} = useAuth();
   const {colors, rootStyles} = useTheme();
+  const navigation = useNavigation();
   const isFromMe = useMemo(
     () => user._id === (by?._id ? by._id : by),
     [by, user],
@@ -103,8 +105,9 @@ function MessageBlock({
           {messageCreator && (
             <Text
               onPress={() =>
-                navigate('ProfileView', {
+                navigation.navigate('ProfileView', {
                   profileId: by?._id || by,
+                  onGoBack: () => navigation.setParams({refreshChat: true}),
                 })
               }
               style={[

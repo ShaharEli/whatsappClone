@@ -1,3 +1,4 @@
+import {useIsFocused} from '@react-navigation/native';
 import {StackActions} from '@react-navigation/routers';
 import {useHeaderHeight} from '@react-navigation/stack';
 import React, {useEffect, useRef, useState} from 'react';
@@ -9,8 +10,6 @@ import {
   BackHandler,
   Platform,
   ActivityIndicator,
-  RefreshControl,
-  Text,
 } from 'react-native';
 import {createChat, getChat} from '../../api/chat';
 import ChatInput from '../../components/ChatInput';
@@ -54,16 +53,27 @@ export default function Chat({route, navigation}) {
     media,
     msgType,
     setMsgType,
-  } = useMessages(chat, socketController, scrollToEnd, navigation);
+  } = useMessages(chat, socketController, scrollToEnd, navigation, setChat);
 
   const flatListRef = useRef();
   const yProgress = useRef(new Animated.Value(0)).current;
+  const isFocused = useIsFocused();
 
   const fetchChat = async () => {
     const fromRouteChat = route.params?.chat;
-    if (fromRouteChat) {
+    const refreshChat = route.params?.refreshChat;
+
+    if (fromRouteChat && !refreshChat) {
       setChat(fromRouteChat);
       navigation.setParams({chat: fromRouteChat});
+    }
+    if (refreshChat && !route.params?.fromContacts) {
+      const chatExits = chats.find(({_id}) => _id === route.params.chat._id);
+      if (chatExits) {
+        setChat(chatExits);
+        navigation.setParams({chat: chatExits});
+        return;
+      }
     }
     if (route.params?.fromContacts && route.params?._id) {
       const chatExits = checkIfChatExists(chats, user, route.params);
@@ -79,42 +89,24 @@ export default function Chat({route, navigation}) {
         }
       }
     } else {
-      let chatData;
       if (route.params?.fromNotification && route.params?.chatId) {
         const chatExits = chats.find(({_id}) => _id === route.params?.chatId);
-        chatData = chatExits;
         if (chatExits) {
           setChat(chatExits);
           navigation.setParams({chat: chatExits});
         } else {
           const chat = await getChat(route.params?.chatId);
-          chatData = chat;
-
           if (chat) {
             navigation.setParams({chat});
-
             setChat(chat);
           }
-
-          // const fetchedChat = await
         }
-        const {type, image, name, participants} = chatData;
-        const {chatImage, chatName} = getChatDataFormatted(
-          {
-            type,
-            image,
-            name,
-            participants,
-          },
-          user._id,
-        );
-        navigation.setParams({
-          avatar: chatImage,
-          name: chatName,
-        });
         // TODO change according to route
       }
     }
+    navigation.setParams({
+      refreshChat: false,
+    });
     setLoading(false);
   };
   const handleBackBtn = () => {
@@ -134,21 +126,28 @@ export default function Chat({route, navigation}) {
         BackHandler.removeEventListener('hardwareBackPress', handleBackBtn);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadingChats]);
+  }, [loadingChats, isFocused]);
 
   useEffect(() => {
     if (chat?.type === 'private') {
-      const {participants} = chat;
-      const {isActive, lastConnected} = getChatDataFormatted(
-        {
-          participants,
-        },
-        user._id,
-        true,
-      );
+      const {participants, type, image, name} = chat;
+
+      const {chatImage, chatName, isActive, lastConnected} =
+        getChatDataFormatted(
+          {
+            type,
+            image,
+            name,
+            participants,
+          },
+          user._id,
+        );
       navigation.setParams({
+        avatar: chatImage,
         isActive,
         lastConnected,
+        name: chatName,
+        subHeader: null,
       });
     } else if (chat?.type === 'group') {
       (async () => {
@@ -159,7 +158,7 @@ export default function Chat({route, navigation}) {
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat]);
+  }, [chat, chat?.participants, isFocused]);
 
   const headerHeight = useHeaderHeight();
   if (loading) return <Loading />;

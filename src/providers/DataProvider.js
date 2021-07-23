@@ -1,9 +1,7 @@
-import {useNavigation} from '@react-navigation/core';
 import React, {createContext, useEffect, useContext, useState} from 'react';
 import {AppState} from 'react-native';
 import {SocketController} from '../api/socketController';
 import {useChats} from '../hooks';
-import {getItem, logger} from '../utils';
 
 export const DataContext = createContext();
 let socketController;

@@ -8,6 +8,7 @@ import {useHeaderHeight} from '@react-navigation/stack';
 import {MAX_HEIGHT, phoneReg} from '../../utils';
 import {loginByPass} from '../../api/auth';
 import {useAuth} from '../../providers/AuthProvider';
+import {publicFetch} from '../../api/publicFetch';
 
 export default function Login({navigation}) {
   const {colors, rootStyles} = useTheme();
@@ -25,14 +26,14 @@ export default function Login({navigation}) {
       }));
       errorOccured = true;
     } else {
-      setErrors(prev => ({...prev, phone: null}));
+      if (phoneReg.test(phone)) {
+        setErrors(prev => ({...prev, phone: 'Phone not valid'}));
+        errorOccured = true;
+      } else {
+        setErrors(prev => ({...prev, phone: null}));
+      }
     }
-    if (phoneReg.test(phone)) {
-      setErrors(prev => ({...prev, phone: 'Phone not valid'}));
-      errorOccured = true;
-    } else {
-      setErrors(prev => ({...prev, phone: null}));
-    }
+
     if (password.length < 6) {
       setErrors(prev => ({...prev, password: 'Password too short'}));
       errorOccured = true;

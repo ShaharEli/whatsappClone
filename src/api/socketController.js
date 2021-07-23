@@ -19,7 +19,13 @@ export class SocketController {
     if (!this.socket) return;
     this.socket.on('connect_error', this.onConnectionError);
     this.socket.on('type', this.onType);
+    // this.socket.on('chatChanged', this.onChatChanged);
   }
+
+  // onChatChanged(chat) {
+  //   this.setChats(prev => prev.map(c => (c._id === chat?._id ? chat : c)));
+  //   this.setNotifications(prev => ({...prev, chatEdited: chat}));
+  // }
 
   subscribe(event, cb) {
     if (!this.socket) return;

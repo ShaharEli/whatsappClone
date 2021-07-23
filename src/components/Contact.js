@@ -17,12 +17,13 @@ export default function Contact({
   selected,
   bg,
   isAdmin,
+  alreadyJoined = false,
   disabled = false,
 }) {
   const {colors, rootStyles} = useTheme();
   return (
     <TouchableOpacity
-      disabled={disabled}
+      disabled={disabled || alreadyJoined}
       onPress={() =>
         onPress
           ? onPress(!selected, {
@@ -67,7 +68,11 @@ export default function Contact({
           <Text style={styles.name(colors)}>
             {label ? label : [firstName, lastName].join(' ')}
           </Text>
-          {status ? <Text style={styles.status(colors)}>{status}</Text> : null}
+          {status || alreadyJoined ? (
+            <Text style={styles.status(colors, alreadyJoined)}>
+              {alreadyJoined ? 'already joined' : status}
+            </Text>
+          ) : null}
         </View>
       </View>
       {isAdmin && (
@@ -102,8 +107,9 @@ const styles = StyleSheet.create({
     color: colors.font,
     fontSize: 16,
   }),
-  status: colors => ({
-    color: colors.SECONDARY_FONT,
+  status: (colors, alreadyJoined) => ({
+    color: alreadyJoined ? colors.GREY_LIGHT : colors.SECONDARY_FONT,
+    fontStyle: alreadyJoined ? 'italic' : undefined,
     fontSize: 13,
     paddingTop: 2,
   }),

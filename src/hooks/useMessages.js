@@ -1,16 +1,12 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {Platform} from 'react-native';
 import {getMessages, getUserActiveState, sendMessage} from '../api/chat';
 import {useAuth} from '../providers/AuthProvider';
 import {useData} from '../providers/DataProvider';
 import {
   changeConnectedState,
-  getOtherParticipant,
   getType,
   handleNewMessage,
   handleSeen,
-  rsa,
-  splitterForRSA,
 } from '../utils';
 
 let timeout;
@@ -23,6 +19,7 @@ export const useMessages = (
   socketController,
   scrollToEnd,
   navigation,
+  setChat,
 ) => {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -123,7 +120,7 @@ export const useMessages = (
         chatId,
         type: msgType,
         media,
-        message,
+        message: input,
       },
       socketController,
     );
@@ -133,7 +130,7 @@ export const useMessages = (
     setMedia(null);
     scrollToEnd();
     return message;
-  }, [chat, msgType, input, socketController, media, scrollToEnd]);
+  }, [chat, msgType, socketController, media, scrollToEnd, input]);
 
   useEffect(() => {
     if (chat?._id) {
@@ -147,7 +144,7 @@ export const useMessages = (
           index === chatIndex ? {...chat, unreadMessages: 0} : chat,
         );
       });
-      socketController.unsubscribe(['newMessage', 'seen']);
+      socketController.unsubscribe(['newMessage', 'seen', 'chatChanged']);
       //
       if (chat.type === 'private') {
         (async () => {
@@ -185,6 +182,18 @@ export const useMessages = (
           },
         );
       }
+      socketController.subscribe('chatChanged', modifiedChat => {
+        setChats(prev => {
+          const chatIndex = prev.findIndex(({_id}) => _id === modifiedChat._id);
+          if (chatIndex === -1) return prev;
+          return prev.map((chat, index) =>
+            index === chatIndex ? modifiedChat : chat,
+          );
+        });
+        if (chat?._id === modifiedChat._id) {
+          setChat(modifiedChat);
+        }
+      });
       socketController.subscribe(
         'newMessage',
         ({message, chat: returnedChat}) =>
@@ -223,6 +232,7 @@ export const useMessages = (
           //   'newMessage',
           'socketDisconnected',
           'socketConnected',
+          'chatChanged',
           //   'seen',
         ]);
 

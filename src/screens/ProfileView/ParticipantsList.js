@@ -37,7 +37,7 @@ export default function ParticipantsList({
                 {backgroundColor: colors.LIGHT_BG},
               ]}>
               <Text style={[rootStyles.textColor(colors.INDICATOR)]}>
-                Participants: {participants.length}
+                Participants: {participants?.length}
               </Text>
               <Ionicons
                 onPress={() => setIsSearching(true)}

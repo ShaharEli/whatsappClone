@@ -114,6 +114,7 @@ export const handleSeen = (
     return prev.map((c, i) => {
       if (i !== chatIndex) return c;
       const {lastMessage} = c;
+      if (!lastMessage) return c;
       if (!(lastMessage?.by || lastMessage?.by?._id) === user._id) return c;
       return {
         ...c,
@@ -226,7 +227,7 @@ export const isMainAdmin = (chat, userToCheck) => {
   return chat?.mainAdmin === userToCheck._id;
 };
 
-export const updateChat = async (chat, setChats, payload) => {
+export const updateChat = async (chat, setChats, payload, field) => {
   const newChat = await editChat(chat?._id, payload);
   if (newChat) {
     setChats(prev => {
@@ -234,12 +235,12 @@ export const updateChat = async (chat, setChats, payload) => {
         if (c._id === newChat?._id) {
           return {
             ...c,
-            usersWithoutNotifications: newChat.usersWithoutNotifications,
+            [field]: newChat[field],
           };
         }
         return c;
       });
     });
-    return true;
+    return newChat;
   }
 };

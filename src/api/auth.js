@@ -3,7 +3,7 @@ import Snackbar from 'react-native-snackbar';
 import {generateRSAKey, logger} from '../utils';
 import {getItem, setItem} from '../utils/storage.util';
 import {publicFetch} from './publicFetch';
-
+const BASE = '/auth';
 const getRefreshOrThrow = async () => {
   const refreshToken = await getItem('refreshToken');
   if (!refreshToken) throw new Error('no refresh token found');
@@ -22,7 +22,7 @@ export const logErrorToService = async (error, info) => {
       info,
       user: prevUser ? prevUser._id : null,
     };
-    const {created} = await publicFetch('/auth/error', 'POST', payload);
+    const {created} = await publicFetch(`${BASE}/error`, 'POST', payload);
     return created;
   } catch {
     return false;
@@ -31,7 +31,7 @@ export const logErrorToService = async (error, info) => {
 
 export const getAccessToken = async () => {
   const refreshToken = await getRefreshOrThrow();
-  const {accessToken} = await publicFetch('/auth/get-token', 'POST', {
+  const {accessToken} = await publicFetch(`${BASE}/get-token`, 'POST', {
     refreshToken,
   });
   await setItem('accessToken', accessToken);
@@ -41,11 +41,10 @@ export const getAccessToken = async () => {
 export const loginByPass = async (phone, password) => {
   try {
     const {user, accessToken, refreshToken} = await publicFetch(
-      '/auth/login',
+      `${BASE}/login`,
       'POST',
       {phone, password},
     );
-
     await setItem('accessToken', accessToken);
     await setItem('refreshToken', refreshToken);
     await setItem('currUser', user);
@@ -56,7 +55,7 @@ export const loginByPass = async (phone, password) => {
       text: error,
       duration: Snackbar.LENGTH_SHORT,
     });
-    // logger.warn(error); //TODO uncomment
+    logger.error(error); //TODO uncomment
     return false;
   }
 };
@@ -65,7 +64,7 @@ export const register = async payload => {
   try {
     const [privateKey, publicKey] = generateRSAKey();
     const {user, accessToken, refreshToken} = await publicFetch(
-      '/auth/register',
+      `${BASE}/register`,
       'POST',
       {...payload, publicKey},
     );
@@ -88,9 +87,8 @@ export const register = async payload => {
 export const loginWithToken = async () => {
   try {
     const refreshToken = await getRefreshOrThrow();
-
     const {accessToken, user} = await publicFetch(
-      '/auth/login-with-token',
+      `${BASE}/login-with-token`,
       'POST',
       {refreshToken},
     );
@@ -99,7 +97,7 @@ export const loginWithToken = async () => {
     const privateKey = await getItem(`privateKey@${user._id}`);
     return {...user, privateKey};
   } catch ({message}) {
-    // logger.warn(message); //TODO uncomment
+    logger.error(message); //TODO uncomment
     return false;
   }
 };

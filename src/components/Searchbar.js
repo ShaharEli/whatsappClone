@@ -9,6 +9,7 @@ export default function Searchbar({
   setSearchVal = () => {},
   setIsSearching = () => {},
   setFilteredArr = () => {},
+  onGoBack = () => {},
   fullArr,
   searchVal,
 }) {
@@ -39,6 +40,7 @@ export default function Searchbar({
           onPress={() => {
             setSearchVal('');
             setIsSearching(false);
+            onGoBack();
           }}
           style={{...rootStyles.mx3}}
         />
@@ -48,6 +50,7 @@ export default function Searchbar({
         placeholder="search..."
         onChangeText={e => {
           if (!e) {
+            setSearchVal('');
             return setFilteredArr(fullArr);
           }
           setFilteredArr(
@@ -63,6 +66,7 @@ export default function Searchbar({
                   ),
             ),
           );
+          setIsSearching(true);
           setSearchVal(e);
         }}
         value={searchVal}

@@ -1,286 +1,66 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useRef} from 'react';
 import {
   Image,
   SafeAreaView,
-  ScrollView,
-  StyleSheet,
   Switch,
   Text,
   TouchableHighlight,
   TouchableOpacity,
   View,
   Animated,
-  FlatList,
-  StatusBar,
-  ActivityIndicator,
   Modal,
-  Platform,
 } from 'react-native';
-import ContactsHandler from 'react-native-contacts';
 import {useTheme} from '../../providers/StyleProvider';
 import {Divider, ScreenWrapper} from '../../styles/styleComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  assets,
-  checkIfChatExists,
-  getChatDataFormatted,
-  isAdmin,
-  isIphoneWithNotch,
-  isMainAdmin,
-  MAX_WIDTH,
-  updateChat,
-} from '../../utils';
+import {isAdmin} from '../../utils';
 import If from '../../components/If';
 import Feather from 'react-native-vector-icons/Feather';
 import {useAuth} from '../../providers/AuthProvider';
-import {
-  editChat,
-  getParticipants,
-  getProfile,
-  getStarredMessages,
-} from '../../api';
-import {useData} from '../../providers/DataProvider';
-import Contact from '../../components/Contact';
-import {useContacts} from '../../hooks';
-import UnderlineTextField from '../../components/UnderlineTextField';
+import {useProfile} from '../../hooks';
 import ParticipantsList from './ParticipantsList';
 import Searchbar from '../../components/Searchbar';
+import ParticipantsController from '../../components/ParticipantsController';
+import styles from './style';
 const AnimatedImage = Animated.createAnimatedComponent(Image);
-const IMAGE_HEIGHT = MAX_WIDTH / 2;
 //TODO add last active
+// TODO add sockets update
 export default function ProfileView({route, navigation}) {
-  const {rootStyles, colors} = useTheme();
-  const avatar = route?.params?.avatar;
-  const name = route?.params?.name;
-  const chatFromRoute = route?.params?.chat;
-  const [chat, setChat] = useState(chatFromRoute ? chatFromRoute : null);
-  const profileId = route?.params?.profileId; //TODO get existing chats or fetch user data (in case not in chats)
-  const isGroup = chat?.type && chat?.type !== 'private';
-  const {user} = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [starredCount, setStarredCount] = useState(null);
-  const [loadingParticipants, setLoadingParticipants] = useState(isGroup);
-  const [participants, setParticipants] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [filteredParticipants, setFilteredParticipants] = useState([]);
-  const [activeParticipant, setActiveParticipant] = useState(null);
-  const [searchVal, setSearchVal] = useState('');
-  const {setChats, chats} = useData();
-  const [withNotifications, setWithNotifications] = useState(
-    !chat?.usersWithoutNotifications?.includes(user._id),
-  );
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const {contacts, refetchContacts} = useContacts();
-
-  useEffect(() => {
-    if (profileId) {
-      setChat(null);
-      setSearchVal('');
-      setIsSearching(false);
-      const existedChat = checkIfChatExists(chats, user, {_id: profileId});
-      if (existedChat) {
-        const {isActive, lastConnected, chatImage, chatName} =
-          getChatDataFormatted(existedChat, user._id);
-        navigation.setParams({
-          avatar: chatImage,
-          name: chatName,
-        });
-        setChat(existedChat);
-      } else {
-        (async () => {
-          const profile = await getProfile(profileId);
-          if (profile) {
-            if (profile.avatar) {
-              navigation.setParams({avatar: {uri: profile.avatar}});
-            } else {
-              navigation.setParams({avatar: assets.profilePlaceholder});
-            }
-            navigation.setParams({
-              name: `${profile.firstName} ${profile.lastName}`,
-            });
-          }
-        })();
-      }
-    } else {
-      (async () => {
-        const count = await getStarredMessages(chat._id);
-        if (count === false) return;
-        setStarredCount(count);
-        if (chat?.type !== 'private') {
-          const fetchedParticipants = await getParticipants(chat._id);
-          if (fetchedParticipants) {
-            setFilteredParticipants(fetchedParticipants);
-            setParticipants(fetchedParticipants);
-          }
-          setLoadingParticipants(false);
-        }
-      })();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat?._id, profileId]);
-
-  const switchNotification = useCallback(
-    async val => {
-      if (loading) return;
-      setLoading(true);
-      const newChat = await editChat(chat?._id, {withNotifications: val});
-      if (newChat) {
-        setWithNotifications(val);
-        setChats(prev => {
-          return prev.map(c => {
-            if (c._id === newChat?._id) {
-              return {
-                ...c,
-                usersWithoutNotifications: newChat.usersWithoutNotifications,
-              };
-            }
-            return c;
-          });
-        });
-      }
-      setLoading(false);
+  const {
+    animationsStyle: {
+      imageOpacity,
+      nameContainerTop,
+      nameTranslateX,
+      headerColor,
     },
-    [loading, setChats, chat?._id],
-  );
-
-  const editGroup = target => {
-    navigation.navigate('EditGroup', {chat, target});
-  };
-
-  const imageOpacity = scrollY.interpolate({
-    inputRange: [0, 100, 180],
-    outputRange: [1, 1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const nameContainerTop = scrollY.interpolate({
-    inputRange: [0, 100, 180],
-    outputRange: [
-      isIphoneWithNotch() ? 200 : 140,
-      isIphoneWithNotch() ? 100 : 90,
-      isIphoneWithNotch() ? 40 : 0,
-    ],
-    extrapolate: 'clamp',
-  });
-
-  const nameTranslateX = scrollY.interpolate({
-    inputRange: [0, 100, 180],
-    outputRange: [30, 30, 60],
-    extrapolate: 'clamp',
-  });
-  const headerColor = scrollY.interpolate({
-    inputRange: [0, 180],
-    outputRange: ['transparent', colors.HEADER],
-    extrapolate: 'clamp',
-  });
-
-  const getActiveParticipantsOptions = useCallback(() => {
-    if (!activeParticipant) return [];
-    const arrOfOpts = [
-      {
-        label: `Send message to ${activeParticipant.firstName} ${activeParticipant.lastName}`,
-        onPress: () => {
-          navigation.navigate('Chat', {
-            fromContacts: true,
-            _id: activeParticipant._id,
-          });
-        },
-      },
-      {
-        label: `Show ${activeParticipant.firstName} ${activeParticipant.lastName}`,
-        onPress: () => {
-          setActiveParticipant(null);
-          navigation.navigate('ProfileView', {
-            profileId: activeParticipant._id,
-          });
-        },
-      },
-    ];
-    if (contacts.findIndex(c => c._id === activeParticipant._id) === -1) {
-      arrOfOpts.push({
-        label: 'Add to contacts',
-        onPress: async () => {
-          const isAdded = await ContactsHandler.openContactForm({
-            displayName: `${activeParticipant.firstName} ${activeParticipant.lastName}`,
-            familyName: activeParticipant.lastName,
-            givenName: activeParticipant.firstName,
-            phoneNumbers: [{label: 'mobile', number: activeParticipant.phone}],
-          });
-          if (isAdded) {
-            await refetchContacts();
-          }
-          setActiveParticipant(null);
-        },
-      });
-    }
-    console.log(
-      isMainAdmin(chat, user),
-      isAdmin(chat, activeParticipant),
-      user._id,
-      chat.mainAdmin,
-    );
-    if (isMainAdmin(chat, user)) {
-      if (isAdmin(chat, activeParticipant)) {
-        arrOfOpts.push({
-          label: `Make ${activeParticipant.firstName} ${activeParticipant.lastName} not admin`,
-          onPress: async () => {
-            const {_id} = activeParticipant;
-            setActiveParticipant(null);
-            const success = await updateChat(chat, setChats, {
-              removeAdmin: activeParticipant._id,
-            });
-            if (success) {
-              setChat(prev => ({
-                ...prev,
-                admins: prev.admins.filter(a => a !== _id),
-              }));
-            }
-          },
-        });
-      }
-    }
-    if (isAdmin(chat, user)) {
-      if (!isAdmin(chat, activeParticipant)) {
-        arrOfOpts.push({
-          label: `Make ${activeParticipant.firstName} ${activeParticipant.lastName} admin`,
-          onPress: async () => {
-            const {_id} = activeParticipant;
-            setActiveParticipant(null);
-            const success = await updateChat(chat, setChats, {
-              addAdmin: activeParticipant._id,
-            });
-            if (success) {
-              setChat(prev => ({...prev, admins: [...prev.admins, _id]}));
-            }
-          },
-        });
-      }
-      if (!isMainAdmin(chat, activeParticipant)) {
-        arrOfOpts.push({
-          label: `Remove ${activeParticipant.firstName} ${activeParticipant.lastName}`,
-          onPress: async () => {
-            setActiveParticipant(null);
-            const success = await updateChat(chat, setChats, {
-              removeParticipant: activeParticipant._id,
-            });
-            if (success) {
-            }
-          },
-        });
-      }
-    }
-    return arrOfOpts;
-  }, [
-    activeParticipant,
-    user,
-    contacts,
+    handleAddParticipant,
+    editGroup,
+    switchNotification,
+    avatar,
+    name,
+    starredCount,
+    loadingParticipants,
+    isSearching,
+    filteredParticipants,
+    searchVal,
+    isAdding,
+    withNotifications,
+    participants,
+    setSearchVal,
+    setIsSearching,
+    setFilteredParticipants,
+    setActiveParticipant,
     chat,
-    setChats,
-    refetchContacts,
-    navigation,
-  ]);
+    setIsAdding,
+    activeParticipant,
+    getActiveParticipantsOptions,
+    isGroup,
+    profileId,
+  } = useProfile(route, navigation, scrollY);
+  const {user} = useAuth();
+  const {rootStyles, colors} = useTheme();
 
   if (isSearching) {
     return (
@@ -310,19 +90,45 @@ export default function ProfileView({route, navigation}) {
     );
   }
 
+  if (isAdding) {
+    return (
+      <ParticipantsController
+        {...{
+          navigation,
+          route,
+          newStep: handleAddParticipant,
+          onGoBack: () => setIsAdding(false),
+          alreadyJoined: participants.map(p => p._id),
+        }}
+      />
+    );
+  }
+
   return (
     <ScreenWrapper>
-      <Modal visible={!!activeParticipant}>
+      <Modal visible={!!activeParticipant} transparent>
         <TouchableOpacity
-          style={[rootStyles.flex1, rootStyles.bg(colors), rootStyles.box]}
+          style={[
+            rootStyles.flex1,
+            rootStyles.box,
+            {backgroundColor: colors.BLACK_TRANSPARENT},
+          ]}
           onPress={() => setActiveParticipant(null)}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              rootStyles.width(0.8),
+              rootStyles.alignSelfCenter,
+              rootStyles.p3,
+              rootStyles.shadowBox,
+              {backgroundColor: colors.HEADER},
+            ]}>
             {getActiveParticipantsOptions().map(({label, onPress}) => (
               <TouchableOpacity onPress={onPress} key={label}>
-                <Text>{label}</Text>
+                <Text style={[rootStyles.font(colors), rootStyles.mb3]}>
+                  {label}
+                </Text>
               </TouchableOpacity>
             ))}
-            <Text>jo</Text>
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
@@ -331,7 +137,10 @@ export default function ProfileView({route, navigation}) {
           name="arrow-back"
           color={colors.INACTIVE_TINT}
           size={30}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            navigation.goBack();
+            route?.params?.onGoBack?.();
+          }}
           style={styles.backArrow}
         />
         <Animated.View
@@ -349,16 +158,28 @@ export default function ProfileView({route, navigation}) {
             ]}>
             {name}
           </Animated.Text>
-          {isGroup && (
-            <Feather
-              name="edit-2"
-              size={20}
-              color={colors.font}
-              onPress={() => editGroup('name')}
-            />
-          )}
+          <View style={[rootStyles.flexRow, rootStyles.alignCenter]}>
+            {isGroup && (
+              <Feather
+                name="edit-2"
+                size={20}
+                color={colors.font}
+                style={rootStyles.mx3}
+                onPress={() => editGroup('name')}
+              />
+            )}
+            {isAdmin(chat, user) && (
+              <Ionicons
+                onPress={() => setIsAdding(true)}
+                color={colors.font}
+                size={20}
+                name="person-add-outline"
+              />
+            )}
+          </View>
         </Animated.View>
         <Animated.ScrollView
+          nestedScrollEnabled
           bounces={false}
           scrollEventThrottle={16}
           onScroll={Animated.event(
@@ -368,7 +189,10 @@ export default function ProfileView({route, navigation}) {
           <If
             cond={!!name}
             message="Error not found"
-            onPress={() => navigation.goBack()}>
+            onPress={() => {
+              route?.params?.onGoBack?.();
+              navigation.goBack();
+            }}>
             <AnimatedImage
               source={avatar}
               style={[styles.image, {opacity: imageOpacity}]}
@@ -457,9 +281,7 @@ export default function ProfileView({route, navigation}) {
                   chat,
                 }}
               />
-              <If cond={isGroup && isAdmin(chat, user)}>
-                <Text>s</Text>
-              </If>
+              <If cond={isGroup && isAdmin(chat, user)}></If>
             </If>
           </If>
         </Animated.ScrollView>
@@ -467,41 +289,3 @@ export default function ProfileView({route, navigation}) {
     </ScreenWrapper>
   );
 }
-const BLOCK_HEIGHT = 50;
-const styles = StyleSheet.create({
-  backArrow: {
-    marginLeft: 10,
-    top: isIphoneWithNotch() ? 60 : 20,
-    zIndex: 1010,
-    position: 'absolute',
-  },
-  image: {
-    width: IMAGE_HEIGHT * 2,
-    height: IMAGE_HEIGHT,
-    resizeMode: 'contain',
-  },
-
-  name: (rootStyles, colors) => ({
-    ...rootStyles.font(colors),
-    ...rootStyles.fontSize(20),
-  }),
-  nameContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    position: 'absolute',
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    paddingVertical: 20,
-    zIndex: 1000,
-  },
-  block: colors => ({
-    backgroundColor: colors.LIGHT_BG,
-    padding: 10,
-    height: BLOCK_HEIGHT,
-    justifyContent: 'center',
-  }),
-  descColor: colors => ({
-    color: colors.GREEN_PRIMARY,
-  }),
-});

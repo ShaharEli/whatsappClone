@@ -51,8 +51,8 @@ export default StyleSheet.create({
     shadowColor: COLOR.GREY_LIGHT,
     borderRadius: 2,
     shadowOffset: {
-      width: 2,
-      height: 2,
+      width: 1,
+      height: 1,
     },
     shadowRadius: 1,
     shadowOpacity: 0.3,

@@ -19,7 +19,7 @@ export const searchInContacts = async contacts => {
     });
     return filteredContacts;
   } catch ({error}) {
-    logger.error(error, 'her');
+    logger.error(error);
     return [];
   }
 };

@@ -18,8 +18,16 @@ import Snackbar from 'react-native-snackbar';
 import If from './If';
 import Searchbar from './Searchbar';
 import {useMemo} from 'react';
+import {isIphoneWithNotch} from '../utils';
 
-function ParticipantsController({navigation, route, newGroup, newStep}) {
+function ParticipantsController({
+  navigation,
+  route,
+  newGroup,
+  newStep,
+  onGoBack = () => {},
+  alreadyJoined = [],
+}) {
   const {contacts, contactsLoading, refetchContacts} = useContacts();
   const {rootStyles, colors} = useTheme();
   const [refreshing, setRefreshing] = useState(false);
@@ -60,6 +68,8 @@ function ParticipantsController({navigation, route, newGroup, newStep}) {
   const searching = route?.params?.searching;
   const searchValue = route?.params?.searchValue;
 
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchVal, setSearchVal] = useState('');
   const data = useMemo(() => {
     if (newGroup) {
       if (searching && searchValue) {
@@ -70,6 +80,7 @@ function ParticipantsController({navigation, route, newGroup, newStep}) {
         return contacts;
       }
     }
+
     if (isSearching && searchVal) {
       return contacts.filter(({firstName, lastName, phone}) =>
         filterData({firstName, lastName, phone}, searchVal),
@@ -78,15 +89,12 @@ function ParticipantsController({navigation, route, newGroup, newStep}) {
     return contacts;
   }, [contacts, searchValue, searching, searchVal, isSearching, newGroup]);
 
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchVal, setSearchVal] = useState('');
-
   useEffect(() => {
     if (!contactsLoading) navigation.setParams({contactsNum: contacts.length});
   }, [contacts, contactsLoading]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper style={{paddingTop: isIphoneWithNotch() ? 40 : 0}}>
       {contactsLoading ? (
         <View style={[rootStyles.flex1, rootStyles.box]}>
           <ActivityIndicator color={colors.BLUE} />
@@ -99,6 +107,7 @@ function ParticipantsController({navigation, route, newGroup, newStep}) {
               setIsSearching={setIsSearching}
               fullArr={contacts}
               searchVal={searchVal}
+              onGoBack={onGoBack}
             />
           </If>
           <SelectedContacts
@@ -132,6 +141,7 @@ function ParticipantsController({navigation, route, newGroup, newStep}) {
                 navigation={navigation}
                 selected={selectedContacts.find(({_id}) => _id === contact._id)}
                 onPress={onContactPressed}
+                alreadyJoined={alreadyJoined.includes(contact._id)}
               />
             )}
           />

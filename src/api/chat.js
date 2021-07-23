@@ -1,6 +1,5 @@
 import Snackbar from 'react-native-snackbar';
-import {getQueryString, logger} from '../utils';
-import {getItem, setItem} from '../utils/storage.util';
+import {logger} from '../utils';
 
 import securedFetch from './privateFetch';
 const BASE = '/chat';

@@ -9,7 +9,7 @@ import {
   MAX_WIDTH,
 } from '../utils';
 import SettingsMenu from '../components/SettingsMenu';
-import {Image, Text, TextInput, View} from 'react-native';
+import {Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {StackActions} from '@react-navigation/routers';
 import styles from './styles';
 
@@ -166,13 +166,22 @@ export const chatHeader = (
     usersTyping,
     chat,
   } = route.params;
-
-  const groupNames = subHeader
-    ?.sort(({_id}) => (user._id === _id ? 1 : -1))
-    .map(({firstName, lastName, _id}) =>
-      _id === user._id ? 'You' : `${firstName} ${lastName}`,
-    )
-    .join(', ');
+  const groupNames = () => {
+    if (!subHeader || !Array.isArray(subHeader)) return '';
+    const ourUserIndex = subHeader?.findIndex(p => p._id === user._id);
+    const ourUserInChat = ourUserIndex !== -1;
+    const deepClonedArr = [...subHeader];
+    if (ourUserInChat) {
+      deepClonedArr.splice(ourUserIndex, 1);
+    }
+    const arrOfNames = deepClonedArr.map(
+      ({firstName, lastName}) => `${firstName} ${lastName}`,
+    );
+    if (ourUserInChat) {
+      arrOfNames.push('You');
+    }
+    return arrOfNames.join(', ');
+  };
 
   return {
     ...baseHeader(colors),
@@ -199,19 +208,20 @@ export const chatHeader = (
         />
         <Image source={avatar} style={rootStyles.customAvatar(30)} />
 
-        <View style={rootStyles.ms4}>
-          <Text
-            onPress={() =>
-              navigation.navigate('ProfileView', {
-                avatar,
-                name,
-                _id,
-                chat,
-                isActive,
-                lastConnected,
-              })
-            }
-            style={[styles.headerRight(colors), styles.clickableTitle]}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('ProfileView', {
+              avatar,
+              name,
+              _id,
+              chat,
+              isActive,
+              lastConnected,
+              onGoBack: () => navigation.setParams({refreshChat: true}),
+            })
+          }
+          style={rootStyles.ms4}>
+          <Text style={[styles.headerRight(colors), styles.clickableTitle]}>
             {name}
           </Text>
           {(isActive || lastConnected || subHeader) && (
@@ -219,7 +229,7 @@ export const chatHeader = (
               {subHeader
                 ? usersTyping
                   ? `${usersTyping.firstName} ${usersTyping.lastName} typing...`
-                  : groupNames
+                  : groupNames()
                 : userTyping
                 ? 'typing...'
                 : isActive
@@ -227,7 +237,7 @@ export const chatHeader = (
                 : calcLastConnected(lastConnected)}
             </Text>
           )}
-        </View>
+        </TouchableOpacity>
       </View>
     ),
   };
